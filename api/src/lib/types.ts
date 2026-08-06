@@ -104,6 +104,9 @@ export interface Application {
   createdAt: string;
   updatedAt: string;
   submittedAt?: string;
+  applicantEmail?: string;
+  applicantName?: string;
+  adminNote?: string;
 }
 
 export function userPk(userId: string) {
@@ -116,6 +119,15 @@ export function applicationSk(applicationId: string) {
 
 export function workflowGsi1pk(slug: string) {
   return `WORKFLOW#${slug}`;
+}
+
+/** Admin inbox GSI partition — all applications. */
+export function adminGsiPk() {
+  return "APPLICATION";
+}
+
+export function adminGsiSk(updatedAt: string, applicationId: string) {
+  return `${updatedAt}#${applicationId}`;
 }
 
 export const PERSON_FIELDS: WorkflowField[] = [

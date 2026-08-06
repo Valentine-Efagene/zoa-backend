@@ -22,20 +22,21 @@ export function originFromEvent(
 }
 
 export function corsHeaders(requestOrigin?: string | null) {
-  let allowOrigin: string;
+  let allowOrigin: string | undefined;
+
   if (allowAll) {
     allowOrigin = requestOrigin ?? "*";
   } else if (requestOrigin && configured.includes(requestOrigin)) {
     allowOrigin = requestOrigin;
-  } else {
-    allowOrigin = configured[0] ?? "*";
   }
 
   return {
-    "Access-Control-Allow-Origin": allowOrigin,
+    ...(allowOrigin
+      ? { "Access-Control-Allow-Origin": allowOrigin }
+      : {}),
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,POST,PATCH,DELETE,OPTIONS",
-    "Access-Control-Allow-Credentials": allowOrigin === "*" ? "false" : "true",
+    "Access-Control-Allow-Credentials": allowOrigin !== "*" ? "true" : "false",
     Vary: "Origin",
   };
 }
@@ -76,6 +77,13 @@ export function unauthorized(
   requestOrigin?: string | null,
 ) {
   return json(401, { error: message }, requestOrigin);
+}
+
+export function forbidden(
+  message = "Forbidden",
+  requestOrigin?: string | null,
+) {
+  return json(403, { error: message }, requestOrigin);
 }
 
 export function notFound(message = "Not found", requestOrigin?: string | null) {

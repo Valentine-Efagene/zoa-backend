@@ -42,6 +42,7 @@ If the account already has a GitHub OIDC provider:
 npx cdk deploy --all -c stage=dev -c createOidcProvider=false -c githubOwner=... -c githubRepo=...
 ```
 
+**DynamoDB note:** AWS allows only one GSI create/delete per table update. New indexes are added across deploys (`gsi-admin` first, then `gsi-by-id`). If a deploy fails with “more than one GSI creation”, keep a single new GSI in `storage-stack.ts`, re-deploy, then add the next.
 ## 2. GitHub Actions (OIDC)
 
 Repo **variables** (Settings → Secrets and variables → Actions → Variables):
@@ -83,7 +84,25 @@ npm run dev
 
 Vercel env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_COGNITO_USER_POOL_ID`, `NEXT_PUBLIC_COGNITO_CLIENT_ID`, `NEXT_PUBLIC_AWS_REGION`.
 
-Without Cognito env vars, the UI uses a mock session so forms can be exercised locally (API accepts `dev-token` when Cognito is unset and stage ≠ prod).
+Without Cognito env vars, the UI uses a mock session so forms can be exercised locally (API accepts `dev-token` when Cognito is unset and stage ≠ prod). Sign in with an email starting with `admin` (or password `admin`) for a local admin session.
+
+## Roles (Cognito groups)
+
+| Role      | Cognito group        | Capabilities                                         |
+| --------- | -------------------- | ---------------------------------------------------- |
+| Applicant | _(none or_ `user`_)_ | Create/edit/submit own applications                  |
+| Admin     | `admin`              | `/admin` inbox, review any filing, set status + note |
+
+Create groups are provisioned by the auth CDK stack. Promote a user:
+
+```bash
+aws cognito-idp admin-add-user-to-group \
+  --user-pool-id us-east-1_XXXX \
+  --username user@example.com \
+  --group-name admin
+```
+
+Then sign out/in so tokens pick up `cognito:groups`. Status updates available to admins: `submitted`, `in_review`, `needs_info`, `completed`, `rejected`.
 
 ## Document UI
 

@@ -65,6 +65,26 @@ export class ZoaStorageStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    /**
+     * DynamoDB allows only ONE GSI create/delete per table update.
+     * We add indexes one deploy at a time:
+     *   1) this deploy → gsi-admin (admin inbox)
+     *   2) next deploy → uncomment gsi-by-id (fast admin get; scan fallback works until then)
+     */
+    this.applicationsTable.addGlobalSecondaryIndex({
+      indexName: "gsi-admin",
+      partitionKey: { name: "gsiAdminPk", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "gsiAdminSk", type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
+    // Uncomment AFTER gsi-admin is ACTIVE, then deploy again:
+    this.applicationsTable.addGlobalSecondaryIndex({
+      indexName: "gsi-by-id",
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     new cdk.CfnOutput(this, "DocumentsBucketName", {
       value: this.documentsBucket.bucketName,
       exportName: `zoa-${stage}-documents-bucket`,

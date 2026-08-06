@@ -28,6 +28,7 @@ provider:
         - http://127.0.0.1:3001
         - http://127.0.0.1:3002
         - http://127.0.0.1:3003
+        - https://zoa-dq83.vercel.app
       allowedHeaders:
         - Content-Type
         - Authorization
@@ -113,6 +114,27 @@ functions:
     events:
       - httpApi:
           path: /applications/{id}
+          method: PATCH
+
+  adminListApplications:
+    handler: src/handlers/applications.adminList
+    events:
+      - httpApi:
+          path: /admin/applications
+          method: GET
+
+  adminGetApplication:
+    handler: src/handlers/applications.adminGet
+    events:
+      - httpApi:
+          path: /admin/applications/{id}
+          method: GET
+
+  adminUpdateApplication:
+    handler: src/handlers/applications.adminUpdate
+    events:
+      - httpApi:
+          path: /admin/applications/{id}
           method: PATCH
 
   createUploadUrl:

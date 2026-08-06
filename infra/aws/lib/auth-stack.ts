@@ -69,6 +69,21 @@ export class ZoaAuthStack extends cdk.Stack {
       refreshTokenValidity: cdk.Duration.days(30),
     });
 
+    // Roles: applicants are any authenticated user; admins are in the "admin" group.
+    new cognito.CfnUserPoolGroup(this, "AdminGroup", {
+      userPoolId: this.userPool.userPoolId,
+      groupName: "admin",
+      description: "Review applications, update filing status",
+      precedence: 1,
+    });
+
+    new cognito.CfnUserPoolGroup(this, "UserGroup", {
+      userPoolId: this.userPool.userPoolId,
+      groupName: "user",
+      description: "Applicants who create and submit filings",
+      precedence: 10,
+    });
+
     new cdk.CfnOutput(this, "UserPoolId", {
       value: this.userPool.userPoolId,
       exportName: `zoa-${stage}-user-pool-id`,
