@@ -8,7 +8,9 @@ export type ApplicationStatus =
 
 export type WorkflowSlug =
   | "company-limited-by-shares"
-  | "incorporated-trustees";
+  | "company-limited-by-guarantee"
+  | "incorporated-trustees"
+  | "scuml-registration";
 
 export type FieldType =
   | "text"

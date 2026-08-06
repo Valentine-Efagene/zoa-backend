@@ -15,9 +15,11 @@ forms/               Source questionnaires
 ## Workflows (from `forms/`)
 
 1. **Company limited by shares** — names, capital, shareholders & directors (add as many as needed), optional secretary, per-person ID/signature uploads.
-2. **Incorporated trustees** — association details, constitution fields, trustees (add as needed), chairman designation, optional secretary.
+2. **Company limited by guarantee** — names ending LTD/GTE, guarantee sum, subscribers & directors, optional secretary.
+3. **Incorporated trustees** — association details, constitution fields, trustees (add as needed), chairman designation, optional secretary.
+4. **SCUML registration** — organisation details, contact person, beneficial owners, directors/trustees, required supporting documents.
 
-Repeatable people use **Add director / Add shareholder / Add trustee** instead of fixed Director1…Director4 slots.
+Repeatable people use **Add director / Add shareholder / Add subscriber / Add trustee** instead of fixed Director1…Director4 slots.
 
 ## 1. Deploy infra (local, once)
 
@@ -29,6 +31,7 @@ npx cdk deploy --all \
   -c stage=dev \
   -c githubOwner=YOUR_GITHUB_ORG \
   -c githubRepo=zoa
+  -c createOidcProvider=false
 ```
 
 Outputs: documents bucket, applications table, Cognito IDs, **API deploy role ARN**, **infra deploy role ARN**.
@@ -43,18 +46,18 @@ npx cdk deploy --all -c stage=dev -c createOidcProvider=false -c githubOwner=...
 
 Repo **variables** (Settings → Secrets and variables → Actions → Variables):
 
-| Variable | Value |
-|---|---|
-| `AWS_REGION` | `eu-west-1` |
-| `AWS_DEPLOY_ROLE_ARN` | Api deploy role ARN from CDK |
-| `AWS_INFRA_ROLE_ARN` | Infra deploy role ARN from CDK |
-| `APPLICATIONS_TABLE` | e.g. `zoa-applications-dev` |
-| `DOCUMENTS_BUCKET` | bucket name from stack output |
-| `COGNITO_USER_POOL_ID` | user pool id |
-| `COGNITO_CLIENT_ID` | app client id |
-| `CORS_ORIGIN` | Vercel app URL |
-| `GITHUB_OWNER` | optional override |
-| `GITHUB_REPO` | optional override |
+| Variable               | Value                          |
+| ---------------------- | ------------------------------ |
+| `AWS_REGION`           | `us-east-1` (match CDK deploy) |
+| `AWS_DEPLOY_ROLE_ARN`  | Api deploy role ARN from CDK   |
+| `AWS_INFRA_ROLE_ARN`   | Infra deploy role ARN from CDK |
+| `APPLICATIONS_TABLE`   | e.g. `zoa-applications-dev`    |
+| `DOCUMENTS_BUCKET`     | bucket name from stack output  |
+| `COGNITO_USER_POOL_ID` | user pool id                   |
+| `COGNITO_CLIENT_ID`    | app client id                  |
+| `CORS_ORIGIN`          | Vercel app URL                 |
+| `GITHUB_OWNER`         | optional override              |
+| `GITHUB_REPO`          | optional override              |
 
 No long-lived `AWS_ACCESS_KEY_ID` is required — workflows assume roles via OIDC.
 

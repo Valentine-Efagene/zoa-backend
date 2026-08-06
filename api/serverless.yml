@@ -6,7 +6,7 @@ provider:
   name: aws
   runtime: nodejs20.x
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'eu-west-1'}
+  region: ${opt:region, 'us-east-1'}
   memorySize: 256
   timeout: 29
   architecture: arm64
@@ -20,7 +20,14 @@ provider:
   httpApi:
     cors:
       allowedOrigins:
-        - ${env:CORS_ORIGIN, '*'}
+        - http://localhost:3000
+        - http://localhost:3001
+        - http://localhost:3002
+        - http://localhost:3003
+        - http://127.0.0.1:3000
+        - http://127.0.0.1:3001
+        - http://127.0.0.1:3002
+        - http://127.0.0.1:3003
       allowedHeaders:
         - Content-Type
         - Authorization

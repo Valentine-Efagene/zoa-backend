@@ -1,0 +1,69 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "api/**"
+      - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Deployment stage
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-api-${{ github.event.inputs.stage || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Serverless API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    env:
+      STAGE: ${{ github.event.inputs.stage || 'dev' }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      APPLICATIONS_TABLE: ${{ vars.APPLICATIONS_TABLE }}
+      DOCUMENTS_BUCKET: ${{ vars.DOCUMENTS_BUCKET }}
+      COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
+      COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
+      CORS_ORIGIN: ${{ vars.CORS_ORIGIN || '*' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy
+        run: npx serverless deploy --stage "$STAGE" --verbose

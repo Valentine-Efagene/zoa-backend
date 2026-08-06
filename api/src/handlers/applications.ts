@@ -24,6 +24,7 @@ import {
   created,
   notFound,
   ok,
+  originFromEvent,
   parseBody,
   serverError,
   unauthorized,
@@ -32,7 +33,9 @@ import {
 const createSchema = z.object({
   workflowSlug: z.enum([
     "company-limited-by-shares",
+    "company-limited-by-guarantee",
     "incorporated-trustees",
+    "scuml-registration",
   ]),
   formData: z.record(z.unknown()).default({}),
 });
@@ -66,6 +69,7 @@ function toApplication(item: Record<string, unknown>): Application {
 }
 
 export const list: APIGatewayProxyHandlerV2 = async (event) => {
+  const origin = originFromEvent(event);
   try {
     const user = await requireAuth(event);
     const result = await docClient.send(
@@ -84,25 +88,26 @@ export const list: APIGatewayProxyHandlerV2 = async (event) => {
       toApplication(item as Record<string, unknown>),
     );
 
-    return ok({ applications });
+    return ok({ applications }, origin);
   } catch (err) {
-    if (err instanceof AuthError) return unauthorized(err.message);
+    if (err instanceof AuthError) return unauthorized(err.message, origin);
     console.error(err);
-    return serverError();
+    return serverError(undefined, origin);
   }
 };
 
 export const create: APIGatewayProxyHandlerV2 = async (event) => {
+  const origin = originFromEvent(event);
   try {
     const user = await requireAuth(event);
     const body = parseBody(event);
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
-      return badRequest("Invalid request", parsed.error.flatten());
+      return badRequest("Invalid request", parsed.error.flatten(), origin);
     }
 
     const workflow = getWorkflow(parsed.data.workflowSlug);
-    if (!workflow) return badRequest("Unknown workflow");
+    if (!workflow) return badRequest("Unknown workflow", undefined, origin);
 
     const now = new Date().toISOString();
     const id = uuid();
@@ -131,19 +136,20 @@ export const create: APIGatewayProxyHandlerV2 = async (event) => {
       }),
     );
 
-    return created({ application, workflow });
+    return created({ application, workflow }, origin);
   } catch (err) {
-    if (err instanceof AuthError) return unauthorized(err.message);
+    if (err instanceof AuthError) return unauthorized(err.message, origin);
     console.error(err);
-    return serverError();
+    return serverError(undefined, origin);
   }
 };
 
 export const get: APIGatewayProxyHandlerV2 = async (event) => {
+  const origin = originFromEvent(event);
   try {
     const user = await requireAuth(event);
     const id = event.pathParameters?.id;
-    if (!id) return badRequest("Missing application id");
+    if (!id) return badRequest("Missing application id", undefined, origin);
 
     const result = await docClient.send(
       new GetCommand({
@@ -152,29 +158,30 @@ export const get: APIGatewayProxyHandlerV2 = async (event) => {
       }),
     );
 
-    if (!result.Item) return notFound("Application not found");
+    if (!result.Item) return notFound("Application not found", origin);
 
     const application = toApplication(result.Item as Record<string, unknown>);
     const workflow = getWorkflow(application.workflowSlug);
 
-    return ok({ application, workflow });
+    return ok({ application, workflow }, origin);
   } catch (err) {
-    if (err instanceof AuthError) return unauthorized(err.message);
+    if (err instanceof AuthError) return unauthorized(err.message, origin);
     console.error(err);
-    return serverError();
+    return serverError(undefined, origin);
   }
 };
 
 export const update: APIGatewayProxyHandlerV2 = async (event) => {
+  const origin = originFromEvent(event);
   try {
     const user = await requireAuth(event);
     const id = event.pathParameters?.id;
-    if (!id) return badRequest("Missing application id");
+    if (!id) return badRequest("Missing application id", undefined, origin);
 
     const body = parseBody(event);
     const parsed = updateSchema.safeParse(body);
     if (!parsed.success) {
-      return badRequest("Invalid request", parsed.error.flatten());
+      return badRequest("Invalid request", parsed.error.flatten(), origin);
     }
 
     const existing = await docClient.send(
@@ -183,7 +190,7 @@ export const update: APIGatewayProxyHandlerV2 = async (event) => {
         Key: { pk: userPk(user.sub), sk: applicationSk(id) },
       }),
     );
-    if (!existing.Item) return notFound("Application not found");
+    if (!existing.Item) return notFound("Application not found", origin);
 
     const now = new Date().toISOString();
     const names: string[] = ["#updatedAt"];
@@ -221,12 +228,17 @@ export const update: APIGatewayProxyHandlerV2 = async (event) => {
       }),
     );
 
-    return ok({
-      application: toApplication(result.Attributes as Record<string, unknown>),
-    });
+    return ok(
+      {
+        application: toApplication(
+          result.Attributes as Record<string, unknown>,
+        ),
+      },
+      origin,
+    );
   } catch (err) {
-    if (err instanceof AuthError) return unauthorized(err.message);
+    if (err instanceof AuthError) return unauthorized(err.message, origin);
     console.error(err);
-    return serverError();
+    return serverError(undefined, origin);
   }
 };

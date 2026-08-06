@@ -16,6 +16,60 @@ const shareholdingFields = [
   },
 ];
 
+const subscriberFields = [
+  ...PERSON_FIELDS,
+  {
+    id: "amountGuaranteed",
+    label: "Amount guaranteed (NGN)",
+    type: "text" as const,
+    required: true,
+    placeholder: "e.g. 100,000",
+    colSpan: 2 as const,
+  },
+];
+
+const beneficialOwnerFields = [
+  { id: "fullName", label: "Full name", type: "text" as const, required: true },
+  {
+    id: "dateOfBirth",
+    label: "Date of birth",
+    type: "date" as const,
+    required: true,
+  },
+  {
+    id: "nin",
+    label: "National Identity Number (NIN)",
+    type: "text" as const,
+    required: true,
+  },
+  { id: "mobile", label: "Mobile", type: "tel" as const, required: true },
+  {
+    id: "address",
+    label: "Address",
+    type: "textarea" as const,
+    required: true,
+    colSpan: 2 as const,
+  },
+];
+
+const scumlOfficialFields = [
+  ...beneficialOwnerFields,
+  {
+    id: "gender",
+    label: "Gender",
+    type: "select" as const,
+    required: true,
+    options: ["Male", "Female", "Other"],
+  },
+  { id: "email", label: "Email", type: "email" as const, required: true },
+  {
+    id: "bvn",
+    label: "Bank Verification Number (BVN)",
+    type: "text" as const,
+    required: true,
+  },
+];
+
 export const workflows: WorkflowDefinition[] = [
   {
     slug: "company-limited-by-shares",
@@ -289,6 +343,289 @@ export const workflows: WorkflowDefinition[] = [
         label: "Foreign registration certificates (if any)",
         description:
           "Certified copies of certificates of registration in other African jurisdictions",
+        accept: ".pdf,.jpg,.jpeg,.png",
+        required: false,
+      },
+    ],
+  },
+  {
+    slug: "company-limited-by-guarantee",
+    name: "Company Limited by Guarantee",
+    description:
+      "Questionnaire for CAC incorporation of a company limited by guarantee — names, guarantee sum, subscribers, and directors.",
+    estimatedDays: "5–10 business days",
+    fields: [
+      {
+        id: "proposedName1",
+        label: "Proposed name — option 1",
+        type: "text",
+        required: true,
+        placeholder: "e.g. Acme Foundation Limited by Guarantee",
+        helperText: "Must end with “Limited by Guarantee” or “LTD/GTE”.",
+      },
+      {
+        id: "proposedName2",
+        label: "Proposed name — option 2",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "proposedName3",
+        label: "Proposed name — option 3",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "registeredAddress",
+        label: "Registered address of company (include LGA)",
+        type: "textarea",
+        required: true,
+        colSpan: 2,
+        placeholder: "Street, city, LGA, state",
+      },
+      {
+        id: "principalActivity",
+        label: "Description of principal activity",
+        type: "textarea",
+        required: true,
+        colSpan: 2,
+      },
+      {
+        id: "companyEmail",
+        label: "Email address of proposed company",
+        type: "email",
+        required: true,
+      },
+      {
+        id: "objects",
+        label: "Objects / business of the company",
+        type: "textarea",
+        required: true,
+        colSpan: 2,
+        helperText: "List the main business objects (i–vi as applicable)",
+        placeholder: "i. …\nii. …\niii. …",
+      },
+      {
+        id: "guaranteeSum",
+        label: "Total proposed guarantee sum (NGN)",
+        type: "text",
+        required: true,
+        placeholder: "100,000",
+        helperText:
+          "CAMA 2020: minimum guarantee sum for a private company is ₦100,000.",
+      },
+    ],
+    groups: [
+      {
+        id: "subscribers",
+        label: "Subscribers",
+        itemLabel: "Subscriber",
+        addLabel: "Add subscriber",
+        helperText: "A private company may be formed by one subscriber.",
+        minItems: 1,
+        maxItems: 20,
+        fields: subscriberFields,
+        documents: PERSON_DOCUMENTS,
+      },
+      {
+        id: "directors",
+        label: "Directors",
+        itemLabel: "Director",
+        addLabel: "Add director",
+        helperText:
+          "A small company may have one director. Foreign directors are permitted.",
+        minItems: 1,
+        maxItems: 20,
+        fields: PERSON_FIELDS,
+        documents: PERSON_DOCUMENTS,
+      },
+    ],
+    singulars: [
+      {
+        id: "secretary",
+        label: "Company secretary",
+        optional: true,
+        toggleLabel: "Appoint a company secretary",
+        helperText:
+          "A small company need not appoint a secretary. The secretary may also be a company.",
+        fields: PERSON_FIELDS,
+        documents: PERSON_DOCUMENTS,
+      },
+    ],
+    documents: [],
+  },
+  {
+    slug: "scuml-registration",
+    name: "SCUML Registration",
+    description:
+      "Questionnaire for registration with the Special Control Unit Against Money Laundering (SCUML) — organisation details, beneficial owners, and directors or trustees.",
+    estimatedDays: "7–14 business days",
+    fields: [
+      {
+        id: "category",
+        label: "Category",
+        type: "select",
+        required: true,
+        options: ["Company", "IT (Incorporated Trustees)"],
+      },
+      {
+        id: "cacRegistrationType",
+        label: "CAC registration type",
+        type: "select",
+        required: true,
+        options: ["RC", "BN", "IT"],
+      },
+      {
+        id: "businessSector",
+        label: "Business sector",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "mainBusinessObjectives",
+        label: "Main business objectives",
+        type: "textarea",
+        required: true,
+        colSpan: 2,
+      },
+      {
+        id: "incorporationNumber",
+        label: "Incorporation number",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "dateIncorporated",
+        label: "Date incorporated",
+        type: "date",
+        required: true,
+      },
+      {
+        id: "taxIdNumber",
+        label: "Tax ID number",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "headOfficeAddress",
+        label: "Head office address",
+        type: "textarea",
+        required: true,
+        colSpan: 2,
+      },
+      {
+        id: "bankName",
+        label: "Bank name (director account)",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "bankAccountNumber",
+        label: "Account number",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "bankAccountName",
+        label: "Account name",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "organisationPhone",
+        label: "Organisation phone number",
+        type: "tel",
+        required: true,
+      },
+      {
+        id: "organisationEmail",
+        label: "Organisation email",
+        type: "email",
+        required: true,
+      },
+    ],
+    groups: [
+      {
+        id: "beneficialOwners",
+        label: "Beneficial ownership",
+        itemLabel: "Beneficial owner",
+        addLabel: "Add beneficial owner",
+        helperText:
+          "Individuals with 5% or more share capital (or equivalent ownership).",
+        minItems: 1,
+        maxItems: 20,
+        fields: beneficialOwnerFields,
+      },
+      {
+        id: "officials",
+        label: "Directors / trustees",
+        itemLabel: "Official",
+        addLabel: "Add director / trustee",
+        helperText: "Details of each director or trustee of the organisation.",
+        minItems: 1,
+        maxItems: 20,
+        fields: scumlOfficialFields,
+      },
+    ],
+    singulars: [
+      {
+        id: "contactPerson",
+        label: "Organisation contact person",
+        optional: false,
+        helperText: "Company director or trustee who is the primary contact.",
+        fields: [
+          { id: "name", label: "Name", type: "text", required: true },
+          {
+            id: "address",
+            label: "Address",
+            type: "textarea",
+            required: true,
+            colSpan: 2,
+          },
+          {
+            id: "nin",
+            label: "NIN",
+            type: "text",
+            required: true,
+          },
+          { id: "email", label: "Email", type: "email", required: true },
+          { id: "phone", label: "Phone number", type: "tel", required: true },
+        ],
+      },
+    ],
+    documents: [
+      {
+        id: "certificate-of-incorporation",
+        label: "Certificate of incorporation",
+        description: "CAC certificate of incorporation",
+        accept: ".pdf,.jpg,.jpeg,.png",
+        required: true,
+      },
+      {
+        id: "status-report",
+        label: "Status report",
+        description: "Current CAC status report",
+        accept: ".pdf,.jpg,.jpeg,.png",
+        required: true,
+      },
+      {
+        id: "memo-or-constitution",
+        label: "Memorandum of Association / Constitution",
+        description: "Memorandum and articles, or constitution as applicable",
+        accept: ".pdf,.jpg,.jpeg,.png",
+        required: true,
+      },
+      {
+        id: "tax-clearance",
+        label: "Tax clearance certificate",
+        description: "Valid tax clearance certificate",
+        accept: ".pdf,.jpg,.jpeg,.png",
+        required: true,
+      },
+      {
+        id: "professional-certificate",
+        label: "Professional certificate of the director",
+        description: "Where applicable",
         accept: ".pdf,.jpg,.jpeg,.png",
         required: false,
       },

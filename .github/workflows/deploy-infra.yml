@@ -1,0 +1,70 @@
+name: Deploy Infra
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "infra/aws/**"
+      - ".github/workflows/deploy-infra.yml"
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Deployment stage
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-infra-${{ github.event.inputs.stage || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy CDK stacks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aws
+    env:
+      STAGE: ${{ github.event.inputs.stage || 'dev' }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: infra/aws/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # First bootstrap / OIDC stack deploy may need admin credentials from a
+      # one-time local deploy. Subsequent runs use the infra OIDC role.
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_INFRA_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: CDK bootstrap (idempotent)
+        run: npx cdk bootstrap
+
+      - name: Deploy
+        run: >
+          npx cdk deploy --all --require-approval never
+          -c stage="$STAGE"
+          -c githubOwner="${{ vars.GITHUB_OWNER || github.repository_owner }}"
+          -c githubRepo="${{ vars.GITHUB_REPO || github.event.repository.name }}"

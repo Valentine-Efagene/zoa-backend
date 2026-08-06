@@ -20,6 +20,7 @@ import {
   badRequest,
   notFound,
   ok,
+  originFromEvent,
   parseBody,
   serverError,
   unauthorized,
@@ -35,15 +36,16 @@ const uploadSchema = z.object({
 });
 
 export const createUploadUrl: APIGatewayProxyHandlerV2 = async (event) => {
+  const origin = originFromEvent(event);
   try {
     const user = await requireAuth(event);
     const id = event.pathParameters?.id;
-    if (!id) return badRequest("Missing application id");
+    if (!id) return badRequest("Missing application id", undefined, origin);
 
     const body = parseBody(event);
     const parsed = uploadSchema.safeParse(body);
     if (!parsed.success) {
-      return badRequest("Invalid request", parsed.error.flatten());
+      return badRequest("Invalid request", parsed.error.flatten(), origin);
     }
 
     const existing = await docClient.send(
@@ -52,7 +54,7 @@ export const createUploadUrl: APIGatewayProxyHandlerV2 = async (event) => {
         Key: { pk: userPk(user.sub), sk: applicationSk(id) },
       }),
     );
-    if (!existing.Item) return notFound("Application not found");
+    if (!existing.Item) return notFound("Application not found", origin);
 
     const documentId = uuid();
     const safeName = parsed.data.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -108,10 +110,10 @@ export const createUploadUrl: APIGatewayProxyHandlerV2 = async (event) => {
       }),
     );
 
-    return ok({ uploadUrl, document });
+    return ok({ uploadUrl, document }, origin);
   } catch (err) {
-    if (err instanceof AuthError) return unauthorized(err.message);
+    if (err instanceof AuthError) return unauthorized(err.message, origin);
     console.error(err);
-    return serverError();
+    return serverError(undefined, origin);
   }
 };

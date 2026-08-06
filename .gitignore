@@ -1,0 +1,13 @@
+node_modules
+.DS_Store
+.env
+.env.*
+!.env.example
+dist
+.serverless
+.esbuild
+cdk.out
+.cdk.staging
+*.tsbuildinfo
+.next
+coverage

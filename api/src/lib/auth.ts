@@ -9,7 +9,7 @@ export interface AuthUser {
 
 const userPoolId = process.env.COGNITO_USER_POOL_ID ?? "";
 const clientId = process.env.COGNITO_CLIENT_ID ?? "";
-const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION ?? "eu-west-1";
+const region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION ?? "us-east-1";
 
 let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
 
