@@ -1,0 +1,8 @@
+.serverless
+.esbuild
+dist
+node_modules
+*.tsbuildinfo
+.env
+.env.*
+coverage

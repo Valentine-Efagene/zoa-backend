@@ -1,0 +1,87 @@
+# Zoa
+
+Multi-workflow registration product: guided CAC-style questionnaires, document uploads, Cognito auth, Serverless API, and CDK infra.
+
+## Structure
+
+```
+api/                 Lambda handlers (Serverless + esbuild)
+infra/aws/           CDK stacks — S3, DynamoDB, Cognito, GitHub OIDC
+web/zoa/             Next.js app (Vercel)
+forms/               Source questionnaires
+.github/workflows/   Deploy API + infra via GitHub OIDC
+```
+
+## Workflows (from `forms/`)
+
+1. **Company limited by shares** — names, capital, shareholders & directors (add as many as needed), optional secretary, per-person ID/signature uploads.
+2. **Incorporated trustees** — association details, constitution fields, trustees (add as needed), chairman designation, optional secretary.
+
+Repeatable people use **Add director / Add shareholder / Add trustee** instead of fixed Director1…Director4 slots.
+
+## 1. Deploy infra (local, once)
+
+```bash
+cd infra/aws
+npm ci
+npx cdk bootstrap
+npx cdk deploy --all \
+  -c stage=dev \
+  -c githubOwner=YOUR_GITHUB_ORG \
+  -c githubRepo=zoa
+```
+
+Outputs: documents bucket, applications table, Cognito IDs, **API deploy role ARN**, **infra deploy role ARN**.
+
+If the account already has a GitHub OIDC provider:
+
+```bash
+npx cdk deploy --all -c stage=dev -c createOidcProvider=false -c githubOwner=... -c githubRepo=...
+```
+
+## 2. GitHub Actions (OIDC)
+
+Repo **variables** (Settings → Secrets and variables → Actions → Variables):
+
+| Variable | Value |
+|---|---|
+| `AWS_REGION` | `eu-west-1` |
+| `AWS_DEPLOY_ROLE_ARN` | Api deploy role ARN from CDK |
+| `AWS_INFRA_ROLE_ARN` | Infra deploy role ARN from CDK |
+| `APPLICATIONS_TABLE` | e.g. `zoa-applications-dev` |
+| `DOCUMENTS_BUCKET` | bucket name from stack output |
+| `COGNITO_USER_POOL_ID` | user pool id |
+| `COGNITO_CLIENT_ID` | app client id |
+| `CORS_ORIGIN` | Vercel app URL |
+| `GITHUB_OWNER` | optional override |
+| `GITHUB_REPO` | optional override |
+
+No long-lived `AWS_ACCESS_KEY_ID` is required — workflows assume roles via OIDC.
+
+## 3. API
+
+```bash
+cd api
+npm ci
+cp .env.example .env   # fill from CDK outputs
+npx serverless offline # http://localhost:4000
+# or
+npx serverless deploy --stage dev
+```
+
+## 4. Web (Vercel)
+
+```bash
+cd web/zoa
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+Vercel env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_COGNITO_USER_POOL_ID`, `NEXT_PUBLIC_COGNITO_CLIENT_ID`, `NEXT_PUBLIC_AWS_REGION`.
+
+Without Cognito env vars, the UI uses a mock session so forms can be exercised locally (API accepts `dev-token` when Cognito is unset and stage ≠ prod).
+
+## Document UI
+
+File attachments use [shadcn Attachment](https://ui.shadcn.com/docs/components/base/attachment) with upload states (idle → uploading → done/error) and presigned S3 PUTs from the API.
