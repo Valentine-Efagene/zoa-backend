@@ -46,6 +46,7 @@ const createSchema = z.object({
     "company-limited-by-guarantee",
     "incorporated-trustees",
     "scuml-registration",
+    "business-name-registration",
   ]),
   formData: z.record(z.unknown()).default({}),
 });

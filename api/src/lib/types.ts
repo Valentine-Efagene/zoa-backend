@@ -10,7 +10,8 @@ export type WorkflowSlug =
   | "company-limited-by-shares"
   | "company-limited-by-guarantee"
   | "incorporated-trustees"
-  | "scuml-registration";
+  | "scuml-registration"
+  | "business-name-registration";
 
 export type FieldType =
   | "text"

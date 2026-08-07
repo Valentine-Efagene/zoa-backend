@@ -18,6 +18,7 @@ forms/               Source questionnaires
 2. **Company limited by guarantee** — names ending LTD/GTE, guarantee sum, subscribers & directors, optional secretary.
 3. **Incorporated trustees** — association details, constitution fields, trustees (add as needed), chairman designation, optional secretary.
 4. **SCUML registration** — organisation details, contact person, beneficial owners, directors/trustees, required supporting documents.
+5. **Business name registration** — proprietor identity, home & company addresses, two proposed names, nature of business, ID/signature/passport photos.
 
 Repeatable people use **Add director / Add shareholder / Add subscriber / Add trustee** instead of fixed Director1…Director4 slots.
 
