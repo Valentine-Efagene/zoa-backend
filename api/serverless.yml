@@ -13,7 +13,7 @@ provider:
   environment:
     STAGE: ${self:provider.stage}
     APPLICATIONS_TABLE: ${env:APPLICATIONS_TABLE, 'zoa-applications-${self:provider.stage}'}
-    DOCUMENTS_BUCKET: ${env:DOCUMENTS_BUCKET, 'zoa-documents-${self:provider.stage}'}
+    DOCUMENTS_BUCKET: ${env:DOCUMENTS_BUCKET, ''}
     COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID, ''}
     COGNITO_CLIENT_ID: ${env:COGNITO_CLIENT_ID, ''}
     CORS_ORIGIN: ${env:CORS_ORIGIN, '*'}
@@ -144,6 +144,13 @@ functions:
       - httpApi:
           path: /applications/{id}/documents/upload-url
           method: POST
+
+  createDownloadUrl:
+    handler: src/handlers/documents.createDownloadUrl
+    events:
+      - httpApi:
+          path: /applications/{id}/documents/{documentId}/download-url
+          method: GET
 
   listWorkflows:
     handler: src/handlers/workflows.list
