@@ -1,6 +1,6 @@
-# Zoa
+# Z.O.A Corporate Service Limited
 
-Multi-workflow registration product: guided CAC-style questionnaires, document uploads, Cognito auth, Serverless API, and CDK infra.
+Multi-workflow registration product for Z.O.A: guided CAC-style questionnaires, document uploads, Cognito auth, Serverless API, and CDK infra.
 
 ## Structure
 
@@ -14,7 +14,7 @@ forms/               Source questionnaires
 
 ## Workflows (from `forms/`)
 
-1. **Company limited by shares** — names, capital, shareholders & directors (add as many as needed), optional secretary, per-person ID/signature uploads.
+1. **Company limited by shares** — names, capital, shareholders & directors (add as many as needed), optional secretary, required witness (identity + structured address), per-person ID/signature uploads for shareholders/directors/secretary.
 2. **Company limited by guarantee** — names ending LTD/GTE, guarantee sum, subscribers & directors, optional secretary.
 3. **Incorporated trustees** — association details, constitution fields, trustees (add as needed), chairman designation, optional secretary.
 4. **SCUML registration** — organisation details, contact person, beneficial owners, directors/trustees, required supporting documents.

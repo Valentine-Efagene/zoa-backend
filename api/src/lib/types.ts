@@ -180,6 +180,78 @@ export const PERSON_FIELDS: WorkflowField[] = [
   },
 ];
 
+/** Structured Nigerian address (CAC-style), used on witness and similar blocks. */
+export const STRUCTURED_ADDRESS_FIELDS: WorkflowField[] = [
+  {
+    id: "addressCountry",
+    label: "Country",
+    type: "select",
+    required: true,
+    options: ["Nigeria"],
+  },
+  {
+    id: "addressState",
+    label: "State",
+    type: "text",
+    required: true,
+    placeholder: "Select state",
+  },
+  {
+    id: "addressLga",
+    label: "LGA",
+    type: "text",
+    required: true,
+    placeholder: "Select LGA",
+  },
+  {
+    id: "addressPostalCode",
+    label: "Postal code",
+    type: "text",
+    placeholder: "Enter postal code",
+  },
+  {
+    id: "addressCity",
+    label: "City",
+    type: "text",
+    required: true,
+    placeholder: "Enter city",
+  },
+  {
+    id: "addressHouseNumber",
+    label: "House number / building name",
+    type: "text",
+    required: true,
+    placeholder: "Enter house number / building name",
+  },
+  {
+    id: "addressStreet",
+    label: "Street name",
+    type: "text",
+    required: true,
+    placeholder: "Enter street name",
+    colSpan: 2,
+  },
+];
+
+/** CAC memorandum witness — identity + structured address (no ID uploads). */
+export const WITNESS_FIELDS: WorkflowField[] = [
+  { id: "surname", label: "Surname", type: "text", required: true },
+  { id: "firstName", label: "First name", type: "text", required: true },
+  { id: "otherName", label: "Other name", type: "text" },
+  { id: "dateOfBirth", label: "Date of birth", type: "date", required: true },
+  {
+    id: "gender",
+    label: "Gender",
+    type: "select",
+    required: true,
+    options: ["Male", "Female", "Other"],
+  },
+  { id: "occupation", label: "Occupation", type: "text", required: true },
+  { id: "phone", label: "Phone number", type: "tel", required: true },
+  { id: "email", label: "Email address", type: "email", required: true },
+  ...STRUCTURED_ADDRESS_FIELDS,
+];
+
 export const PERSON_DOCUMENTS: WorkflowDocument[] = [
   {
     id: "means-of-id",

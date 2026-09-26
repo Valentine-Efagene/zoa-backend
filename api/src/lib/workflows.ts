@@ -1,6 +1,7 @@
 import {
   PERSON_DOCUMENTS,
   PERSON_FIELDS,
+  WITNESS_FIELDS,
   type WorkflowDefinition,
 } from "./types";
 
@@ -174,6 +175,14 @@ export const workflows: WorkflowDefinition[] = [
           "A small company need not appoint a secretary. The secretary may also be a company.",
         fields: PERSON_FIELDS,
         documents: PERSON_DOCUMENTS,
+      },
+      {
+        id: "witness",
+        label: "Details of witness",
+        optional: false,
+        helperText:
+          "Required under CAMA: witness must attest subscribers’ signatures and must not be a subscriber or shareholder.",
+        fields: WITNESS_FIELDS,
       },
     ],
     documents: [],
