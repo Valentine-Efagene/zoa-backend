@@ -52,8 +52,8 @@ provider:
             - dynamodb:Query
             - dynamodb:Scan
           Resource:
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.APPLICATIONS_TABLE}
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.APPLICATIONS_TABLE}/index/*
+            - arn:aws:dynamodb:${aws:region}:${self:custom.awsAccountId}:table/${self:provider.environment.APPLICATIONS_TABLE}
+            - arn:aws:dynamodb:${aws:region}:${self:custom.awsAccountId}:table/${self:provider.environment.APPLICATIONS_TABLE}/index/*
         - Effect: Allow
           Action:
             - s3:GetObject
@@ -68,6 +68,8 @@ plugins:
   - serverless-offline
 
 custom:
+  # Set AWS_ACCOUNT_ID=000000000000 for Floci/UAT (avoids STS during serverless resolve).
+  awsAccountId: ${env:AWS_ACCOUNT_ID, aws:accountId}
   esbuild:
     bundle: true
     minify: false

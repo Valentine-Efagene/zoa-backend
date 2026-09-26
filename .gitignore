@@ -11,4 +11,8 @@ cdk.out
 *.tsbuildinfo
 .next
 coverage
+playwright-report
+test-results
+web/zoa/playwright-report
+web/zoa/test-results
 style-assets

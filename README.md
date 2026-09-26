@@ -108,3 +108,17 @@ Then sign out/in so tokens pick up `cognito:groups`. Status updates available to
 ## Document UI
 
 File attachments use [shadcn Attachment](https://ui.shadcn.com/docs/components/base/attachment) with upload states (idle → uploading → done/error) and presigned S3 PUTs from the API.
+
+## Playwright UAT (Floci)
+
+Registration UAT runs in the browser against a local stack: **Floci** (DynamoDB + S3), **Serverless offline** API, and **Next.js**. See [`web/zoa/e2e/UAT_POLICY.md`](web/zoa/e2e/UAT_POLICY.md) — tests assert visible UI only, not workflow API responses.
+
+```bash
+docker compose -f docker-compose.uat.yml up -d
+cp api/.env.uat.example api/.env.uat
+cp web/zoa/.env.uat.example web/zoa/.env.uat
+cd web/zoa && npm ci && npx playwright install chromium
+AWS_ACCOUNT_ID=000000000000 npm run test:uat
+```
+
+CI: [`.github/workflows/uat.yml`](.github/workflows/uat.yml).

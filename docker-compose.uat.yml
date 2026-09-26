@@ -1,0 +1,11 @@
+# Local AWS emulator for Playwright UAT (DynamoDB + S3).
+# Start: docker compose -f docker-compose.uat.yml up -d
+services:
+  floci:
+    image: floci/floci:latest
+    ports:
+      - "4566:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
