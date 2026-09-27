@@ -114,7 +114,7 @@ File attachments use [shadcn Attachment](https://ui.shadcn.com/docs/components/b
 Registration UAT runs in the browser against a local stack: **Floci** (DynamoDB + S3), **Serverless offline** API, and **Next.js**. See [`web/zoa/e2e/UAT_POLICY.md`](web/zoa/e2e/UAT_POLICY.md) — tests assert visible UI only, not workflow API responses.
 
 ```bash
-docker compose -f docker-compose.uat.yml up -d
+docker compose -f docker-compose.uat.yml up -d   # Floci + Mailpit (password-reset UAT)
 cp api/.env.uat.example api/.env.uat
 cp web/zoa/.env.uat.example web/zoa/.env.uat
 cd web/zoa && npm ci && npx playwright install chromium

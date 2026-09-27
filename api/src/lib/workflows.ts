@@ -181,7 +181,7 @@ export const workflows: WorkflowDefinition[] = [
         label: "Details of witness",
         optional: false,
         helperText:
-          "Required under CAMA: witness must attest subscribers’ signatures and must not be a subscriber or shareholder.",
+          "Required under CAMA: witness must attest subscribers' signatures and must not be a subscriber or shareholder.",
         fields: WITNESS_FIELDS,
       },
     ],

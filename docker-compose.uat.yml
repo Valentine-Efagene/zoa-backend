@@ -1,4 +1,4 @@
-# Local AWS emulator for Playwright UAT (DynamoDB + S3).
+# Local AWS emulator + Mailpit for Playwright UAT (DynamoDB, S3, auth emails).
 # Start: docker compose -f docker-compose.uat.yml up -d
 services:
   floci:
@@ -9,3 +9,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - AWS_DEFAULT_REGION=us-east-1
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"

@@ -13,6 +13,16 @@ export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-000000000000}"
 
 "$ROOT/scripts/uat/bootstrap-floci.sh"
 
+if [[ "${MOCK_AUTH_EMAIL:-}" == "true" ]] || grep -q '^MOCK_AUTH_EMAIL=true' "$ROOT/web/zoa/.env.uat" 2>/dev/null || grep -q '^MOCK_AUTH_EMAIL=true' "$ROOT/web/zoa/.env.uat.example" 2>/dev/null; then
+  echo "Waiting for Mailpit on :8025..."
+  for _ in $(seq 1 60); do
+    if curl -sf "http://127.0.0.1:8025/api/v1/messages" >/dev/null; then
+      break
+    fi
+    sleep 1
+  done
+fi
+
 if [[ -f "$ROOT/api/.env.uat" ]]; then
   set -a
   # shellcheck disable=SC1091
