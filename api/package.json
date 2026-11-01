@@ -8,7 +8,9 @@
     "remove": "serverless remove",
     "offline": "serverless offline",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node --import tsx --test src/lib/**/*.test.ts",
+    "seed:email-templates": "tsx scripts/seed-email-templates.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.787.0",
@@ -30,6 +32,7 @@
     "serverless": "^3.40.0",
     "serverless-esbuild": "^1.54.6",
     "serverless-offline": "^13.9.0",
+    "tsx": "^4.19.3",
     "typescript": "^5.8.0"
   }
 }

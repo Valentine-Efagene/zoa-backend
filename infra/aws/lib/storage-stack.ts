@@ -10,6 +10,7 @@ export interface ZoaStorageStackProps extends cdk.StackProps {
 export class ZoaStorageStack extends cdk.Stack {
   public readonly documentsBucket: s3.Bucket;
   public readonly applicationsTable: dynamodb.Table;
+  public readonly emailTemplatesTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props: ZoaStorageStackProps) {
     super(scope, id, props);
@@ -88,6 +89,18 @@ export class ZoaStorageStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    this.emailTemplatesTable = new dynamodb.Table(this, "EmailTemplatesTable", {
+      tableName: `zoa-email-templates-${stage}`,
+      partitionKey: { name: "pk", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "sk", type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecoverySpecification: {
+        pointInTimeRecoveryEnabled: stage === "prod",
+      },
+      removalPolicy:
+        stage === "prod" ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
     new cdk.CfnOutput(this, "DocumentsBucketName", {
       value: this.documentsBucket.bucketName,
       exportName: `zoa-${stage}-documents-bucket`,
@@ -106,6 +119,16 @@ export class ZoaStorageStack extends cdk.Stack {
     new cdk.CfnOutput(this, "ApplicationsTableArn", {
       value: this.applicationsTable.tableArn,
       exportName: `zoa-${stage}-applications-table-arn`,
+    });
+
+    new cdk.CfnOutput(this, "EmailTemplatesTableName", {
+      value: this.emailTemplatesTable.tableName,
+      exportName: `zoa-${stage}-email-templates-table`,
+    });
+
+    new cdk.CfnOutput(this, "EmailTemplatesTableArn", {
+      value: this.emailTemplatesTable.tableArn,
+      exportName: `zoa-${stage}-email-templates-table-arn`,
     });
   }
 }

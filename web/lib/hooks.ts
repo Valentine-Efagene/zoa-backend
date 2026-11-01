@@ -182,3 +182,41 @@ export function useAdminUpdateApplication(applicationId: string) {
     },
   });
 }
+
+export function useAdminEmailTemplates() {
+  return useQuery({
+    queryKey: queryKeys.admin.emailTemplates.all,
+    queryFn: async () => {
+      const res = await api.adminListEmailTemplates();
+      return res.templates;
+    },
+  });
+}
+
+export function useAdminEmailTemplate(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.admin.emailTemplates.detail(id ?? ""),
+    queryFn: async () => {
+      if (!id) throw new Error("Missing template id");
+      const res = await api.adminGetEmailTemplate(id);
+      return res.template;
+    },
+    enabled: Boolean(id),
+  });
+}
+
+export function useAdminEmailTemplatePreview(
+  id: string | undefined,
+  variables: Record<string, string>,
+) {
+  const variablesKey = JSON.stringify(variables);
+  return useQuery({
+    queryKey: queryKeys.admin.emailTemplates.preview(id ?? "", variablesKey),
+    queryFn: async () => {
+      if (!id) throw new Error("Missing template id");
+      const res = await api.adminPreviewEmailTemplate(id, variables);
+      return res.preview;
+    },
+    enabled: Boolean(id),
+  });
+}

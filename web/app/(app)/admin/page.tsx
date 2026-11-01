@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -46,7 +47,11 @@ function AdminInbox() {
             Review submitted filings and update status for applicants.
           </p>
         </div>
-        <div className="w-48">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" nativeButton={false} render={<Link href="/admin/email-templates" />}>
+            Email templates
+          </Button>
+          <div className="w-48">
           <Select
             value={filter}
             onValueChange={(v) => setFilter(v == null ? "all" : String(v))}
@@ -62,6 +67,7 @@ function AdminInbox() {
               ))}
             </SelectContent>
           </Select>
+          </div>
         </div>
       </div>
 

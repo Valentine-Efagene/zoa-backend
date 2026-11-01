@@ -1,0 +1,122 @@
+import type { ApplicationStatus, WorkflowSlug } from "./types";
+
+/** Substituted raw into HTML (e.g. URLs in href). */
+const HTML_RAW_PLACEHOLDER_KEYS = new Set([
+  "dashboardLink",
+  "adminLink",
+  "applicationId",
+  "submittedAt",
+  "workflowSlug",
+]);
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function applyPlaceholders(
+  template: string,
+  variables: Record<string, string>,
+  htmlMode: boolean,
+): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => {
+    const value = variables[key] ?? "";
+    if (htmlMode && !HTML_RAW_PLACEHOLDER_KEYS.has(key)) {
+      return escapeHtml(value);
+    }
+    return value;
+  });
+}
+
+export type RenderedEmail = {
+  subject: string;
+  text: string;
+  html: string;
+};
+
+export function renderEmailTemplate(
+  subjectTemplate: string,
+  textTemplate: string,
+  htmlTemplate: string,
+  variables: Record<string, string>,
+): RenderedEmail {
+  return {
+    subject: applyPlaceholders(subjectTemplate, variables, false),
+    text: applyPlaceholders(textTemplate, variables, false),
+    html: applyPlaceholders(htmlTemplate, variables, true),
+  };
+}
+
+function dashboardUrl(appBaseUrl: string, applicationId: string): string {
+  const base = appBaseUrl.replace(/\/$/, "");
+  return `${base}/applications/${applicationId}`;
+}
+
+function greetingFor(applicantName?: string): string {
+  return applicantName ? `Hello ${applicantName},` : "Hello,";
+}
+
+export type SubmissionVariableInput = {
+  applicationId: string;
+  workflowName: string;
+  workflowSlug: WorkflowSlug;
+  submittedAt: string;
+  applicantEmail: string;
+  applicantName?: string;
+  appBaseUrl: string;
+};
+
+export function buildVariablesForSubmission(
+  input: SubmissionVariableInput,
+): Record<string, string> {
+  const base = input.appBaseUrl.replace(/\/$/, "");
+  const applicantDisplay = input.applicantName
+    ? `${input.applicantName} <${input.applicantEmail}>`
+    : input.applicantEmail;
+
+  return {
+    greeting: greetingFor(input.applicantName),
+    workflowName: input.workflowName,
+    workflowSlug: input.workflowSlug,
+    applicationId: input.applicationId,
+    submittedAt: input.submittedAt,
+    applicantEmail: input.applicantEmail,
+    applicantDisplay,
+    dashboardLink: dashboardUrl(input.appBaseUrl, input.applicationId),
+    adminLink: `${base}/admin/applications/${input.applicationId}`,
+  };
+}
+
+const STATUS_LABELS: Record<ApplicationStatus, string> = {
+  draft: "Draft",
+  submitted: "Submitted",
+  in_review: "In review",
+  needs_info: "Needs information",
+  completed: "Completed",
+  rejected: "Rejected",
+};
+
+export type StatusVariableInput = {
+  applicationId: string;
+  workflowName: string;
+  newStatus: ApplicationStatus;
+  applicantName?: string;
+  adminNote?: string;
+  appBaseUrl: string;
+};
+
+export function buildVariablesForStatus(
+  input: StatusVariableInput,
+): Record<string, string> {
+  return {
+    greeting: greetingFor(input.applicantName),
+    workflowName: input.workflowName,
+    applicationId: input.applicationId,
+    statusLabel: STATUS_LABELS[input.newStatus],
+    dashboardLink: dashboardUrl(input.appBaseUrl, input.applicationId),
+    adminNote: input.adminNote ?? "",
+  };
+}

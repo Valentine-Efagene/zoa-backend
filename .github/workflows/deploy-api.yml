@@ -45,6 +45,7 @@ jobs:
       EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
       NOTIFY_ADMIN_EMAIL: ${{ vars.NOTIFY_ADMIN_EMAIL }}
       APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+      EMAIL_TEMPLATES_TABLE: ${{ vars.EMAIL_TEMPLATES_TABLE || 'zoa-email-templates-dev' }}
 
     steps:
       - name: Checkout

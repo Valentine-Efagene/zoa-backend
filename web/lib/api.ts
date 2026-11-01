@@ -180,6 +180,39 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify(body),
     }),
+
+  adminListEmailTemplates: () =>
+    request<{
+      templates: {
+        id: string;
+        name: string;
+        description: string;
+      }[];
+    }>("/admin/email-templates"),
+
+  adminGetEmailTemplate: (id: string) =>
+    request<{
+      template: {
+        id: string;
+        name: string;
+        description: string;
+        subject: string;
+        textBody: string;
+        htmlBody: string;
+        sampleVariables: Record<string, string>;
+      };
+    }>(`/admin/email-templates/${id}`),
+
+  adminPreviewEmailTemplate: (
+    id: string,
+    variables?: Record<string, string>,
+  ) =>
+    request<{
+      preview: { subject: string; text: string; html: string };
+    }>(`/admin/email-templates/${id}/preview`, {
+      method: "POST",
+      body: JSON.stringify({ variables }),
+    }),
 };
 
 export { getSession } from "./auth";

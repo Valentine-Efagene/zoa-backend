@@ -38,6 +38,9 @@ export const s3 = new S3Client({
 export const APPLICATIONS_TABLE =
   process.env.APPLICATIONS_TABLE ?? "zoa-applications-dev";
 
+export const EMAIL_TEMPLATES_TABLE =
+  process.env.EMAIL_TEMPLATES_TABLE ?? "zoa-email-templates-dev";
+
 /** Must match CDK bucket name: zoa-documents-{stage}-{accountId} */
 export const DOCUMENTS_BUCKET = process.env.DOCUMENTS_BUCKET ?? "";
 

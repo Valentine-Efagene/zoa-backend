@@ -17,6 +17,12 @@ export const queryKeys = {
     applications: (status?: string) =>
       ["admin", "applications", status ?? "all"] as const,
     detail: (id: string) => ["admin", "applications", id] as const,
+    emailTemplates: {
+      all: ["admin", "email-templates"] as const,
+      detail: (id: string) => ["admin", "email-templates", id] as const,
+      preview: (id: string, variablesKey: string) =>
+        ["admin", "email-templates", "preview", id, variablesKey] as const,
+    },
   },
 };
 

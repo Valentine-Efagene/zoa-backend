@@ -82,6 +82,7 @@ Repo **variables** (Settings → Secrets and variables → Actions → Variables
 | `EMAIL_REPLY_TO`       | Monitored inbox (e.g. Gmail)   |
 | `NOTIFY_ADMIN_EMAIL`   | Admin alert on new submissions |
 | `APP_BASE_URL`         | `https://zoa-theta.vercel.app` (email links) |
+| `EMAIL_TEMPLATES_TABLE`| e.g. `zoa-email-templates-dev` (after CDK) |
 | `GITHUB_OWNER`         | optional override              |
 | `GITHUB_REPO`          | optional override              |
 
@@ -131,10 +132,25 @@ Lambda IAM includes `ses:SendEmail` (see [`api/serverless.yml`](api/serverless.y
 
 **Local / UAT:** `EMAIL_TRANSPORT=smtp` with Mailpit (`SMTP_HOST=127.0.0.1`, `SMTP_PORT=1025`) — see [`api/.env.uat.example`](api/.env.uat.example).
 
-## 4. Web (Vercel)
+### 4. Email templates (DynamoDB)
+
+The storage stack creates `zoa-email-templates-{stage}`. Transactional copy lives in that table (seeded from [`api/src/lib/email-template-defaults.ts`](api/src/lib/email-template-defaults.ts)). Sends and admin preview read from DynamoDB with in-code fallback if a row is missing.
+
+After deploying **`ZoaStorage-{stage}`**:
 
 ```bash
-cd web/zoa
+cd api
+npm run seed:email-templates
+# overwrite after editing defaults in repo:
+npm run seed:email-templates -- --force
+```
+
+Admins can preview templates at **`/admin/email-templates`** (read-only in the UI for now). API routes: `GET /admin/email-templates`, `GET /admin/email-templates/{id}`, `POST /admin/email-templates/{id}/preview`.
+
+## 5. Web (Vercel)
+
+```bash
+cd web
 npm ci
 cp .env.example .env.local
 npm run dev
