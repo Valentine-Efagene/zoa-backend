@@ -2,6 +2,7 @@ import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient, EMAIL_TEMPLATES_TABLE } from "./aws";
 import {
   EMAIL_TEMPLATE_SK,
+  EMAIL_LAYOUT_ID,
   getDefaultTemplate,
   isEmailTemplateId,
   DEFAULT_EMAIL_TEMPLATES,
@@ -29,6 +30,12 @@ function itemToRecord(item: Record<string, unknown>): EmailTemplateRecord {
     htmlBody: String(item.htmlBody ?? ""),
     sampleVariables:
       (item.sampleVariables as Record<string, string> | undefined) ?? {},
+    kind:
+      item.kind === "layout" || item.kind === "message"
+        ? item.kind
+        : id === EMAIL_LAYOUT_ID
+          ? "layout"
+          : "message",
   };
 }
 
@@ -45,6 +52,7 @@ export function recordToDynamoItem(
     textBody: template.textBody,
     htmlBody: template.htmlBody,
     sampleVariables: template.sampleVariables,
+    kind: template.kind,
     updatedAt,
   };
 }
@@ -86,13 +94,22 @@ export async function getEmailTemplate(
   return fallback;
 }
 
+export async function getEmailLayout(): Promise<EmailTemplateRecord> {
+  return getEmailTemplate(EMAIL_LAYOUT_ID);
+}
+
 export async function listEmailTemplates(): Promise<
-  Pick<EmailTemplateRecord, "id" | "name" | "description">[]
+  Pick<EmailTemplateRecord, "id" | "name" | "description" | "kind">[]
 > {
   const summaries = await Promise.all(
     DEFAULT_EMAIL_TEMPLATES.map(async (def) => {
       const t = await getEmailTemplate(def.id);
-      return { id: t.id, name: t.name, description: t.description };
+      return {
+        id: t.id,
+        name: t.name,
+        description: t.description,
+        kind: t.kind,
+      };
     }),
   );
   return summaries;

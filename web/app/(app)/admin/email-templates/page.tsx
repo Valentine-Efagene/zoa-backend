@@ -85,7 +85,7 @@ function EmailTemplatesAdmin() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Templates</CardTitle>
-              <CardDescription>Six transactional messages</CardDescription>
+              <CardDescription>Layout plus six message bodies</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <ul className="divide-y divide-border/70">
@@ -101,7 +101,7 @@ function EmailTemplatesAdmin() {
                     >
                       <p className="font-medium">{t.name}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t.id}
+                        {t.kind === "layout" ? "Layout" : "Message"} · {t.id}
                       </p>
                     </button>
                   </li>

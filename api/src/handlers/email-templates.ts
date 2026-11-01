@@ -54,6 +54,7 @@ export const adminGet: APIGatewayProxyHandlerV2 = async (event) => {
           id: template.id,
           name: template.name,
           description: template.description,
+          kind: template.kind,
           subject: template.subject,
           textBody: template.textBody,
           htmlBody: template.htmlBody,

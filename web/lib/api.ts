@@ -187,6 +187,7 @@ export const api = {
         id: string;
         name: string;
         description: string;
+        kind: "layout" | "message";
       }[];
     }>("/admin/email-templates"),
 
@@ -196,6 +197,7 @@ export const api = {
         id: string;
         name: string;
         description: string;
+        kind: "layout" | "message";
         subject: string;
         textBody: string;
         htmlBody: string;

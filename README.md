@@ -134,7 +134,7 @@ Lambda IAM includes `ses:SendEmail` (see [`api/serverless.yml`](api/serverless.y
 
 ### 4. Email templates (DynamoDB)
 
-The storage stack creates `zoa-email-templates-{stage}`. Transactional copy lives in that table (seeded from [`api/src/lib/email-template-defaults.ts`](api/src/lib/email-template-defaults.ts)). Sends and admin preview read from DynamoDB with in-code fallback if a row is missing.
+The storage stack creates `zoa-email-templates-{stage}`. Transactional copy lives in that table (seeded from [`api/src/lib/email-template-defaults.ts`](api/src/lib/email-template-defaults.ts)): one **`layout_standard`** wrapper (logo, legal footer, site link) and six **message** bodies merged at send/preview time. Sends read from DynamoDB with in-code fallback if a row is missing. Logo URL defaults to `{APP_BASE_URL}/brand/mark.png` (hosted on the web app); override with `EMAIL_LOGO_URL` / `EMAIL_BRAND_WEBSITE` on the API Lambda.
 
 After deploying **`ZoaStorage-{stage}`**:
 
