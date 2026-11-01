@@ -1,0 +1,275 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-zoa-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-zoa-display), ui-sans-serif, system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Z.O.A brand — Teal Blue #13458B, Vivid Orange #FF9933 */
+:root {
+  --zoa-blue: #13458b;
+  --zoa-orange: #ff9933;
+  --zoa-canvas: #f3f6fb;
+  --background: #ffffff;
+  --foreground: #0a1628;
+  --card: #ffffff;
+  --card-foreground: #0a1628;
+  --popover: #ffffff;
+  --popover-foreground: #0a1628;
+  --primary: #13458b;
+  --primary-foreground: #ffffff;
+  --secondary: #e8eef7;
+  --secondary-foreground: #13458b;
+  --muted: #eef2f8;
+  --muted-foreground: #5a6b82;
+  --accent: #fff3e6;
+  --accent-foreground: #13458b;
+  --destructive: #c62828;
+  --border: #d5deeb;
+  --input: #d5deeb;
+  --ring: #13458b;
+  --chart-1: #13458b;
+  --chart-2: #ff9933;
+  --chart-3: #2a6bb5;
+  --chart-4: #f0b060;
+  --chart-5: #0a2f5c;
+  --radius: 0.625rem;
+  --sidebar: #f3f6fb;
+  --sidebar-foreground: #0a1628;
+  --sidebar-primary: #13458b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8eef7;
+  --sidebar-accent-foreground: #13458b;
+  --sidebar-border: #d5deeb;
+  --sidebar-ring: #13458b;
+  --font-display: var(--font-zoa-display);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-color: var(--zoa-canvas);
+    background-image:
+      radial-gradient(
+        ellipse 90% 55% at 0% -5%,
+        color-mix(in srgb, var(--zoa-blue) 18%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 70% 45% at 100% 0%,
+        color-mix(in srgb, var(--zoa-orange) 16%, transparent),
+        transparent 50%
+      ),
+      linear-gradient(
+        165deg,
+        #ffffff 0%,
+        var(--zoa-canvas) 45%,
+        color-mix(in srgb, var(--zoa-blue) 6%, #ffffff) 100%
+      );
+    background-attachment: fixed;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@keyframes zoa-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoa-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) rotate(-6deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.zoa-rise {
+  animation: zoa-rise 0.7s ease-out both;
+}
+
+.zoa-rise-delay {
+  animation: zoa-rise 0.7s ease-out 0.12s both;
+}
+
+.zoa-rise-delay-2 {
+  animation: zoa-rise 0.7s ease-out 0.22s both;
+}
+
+.zoa-mark-in {
+  animation: zoa-mark-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+@keyframes zoa-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes zoa-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.04);
+  }
+}
+
+.zoa-float {
+  animation: zoa-float 5.5s ease-in-out infinite;
+}
+
+.zoa-glow {
+  animation: zoa-glow-pulse 7s ease-in-out infinite;
+}
+
+@keyframes zoa-hero-kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+.zoa-hero-kenburns {
+  animation: zoa-hero-kenburns 22s ease-out forwards;
+}
+
+/* Subtle law / document atmosphere (low-contrast patterns) */
+.zoa-pattern-documents {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--zoa-blue) 4%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      color-mix(in srgb, var(--zoa-blue) 5.5%, transparent) 1px,
+      transparent 1px
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 100% 0%,
+      color-mix(in srgb, var(--zoa-blue) 6%, transparent),
+      transparent 55%
+    );
+  background-size:
+    48px 48px,
+    48px 48px,
+    100% 100%;
+  background-position:
+    0 0,
+    0 0,
+    0 0;
+}
+
+.zoa-pattern-seal {
+  background-color: var(--zoa-canvas);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%2313458b' stroke-opacity='0.07' stroke-width='1'%3E%3Ccircle cx='60' cy='60' r='28'/%3E%3Ccircle cx='60' cy='60' r='22'/%3E%3Cpath d='M60 38v44M38 60h44'/%3E%3Cpath d='M48 48l24 24M72 48L48 72'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(
+      ellipse 55% 45% at 0% 100%,
+      color-mix(in srgb, var(--zoa-orange) 10%, transparent),
+      transparent 60%
+    );
+  background-size:
+    120px 120px,
+    100% 100%;
+}
+
+.zoa-pattern-folio {
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%2313458b' stroke-opacity='0.065' stroke-width='1'%3E%3Crect x='18' y='14' width='36' height='48' rx='2'/%3E%3Cpath d='M26 26h20M26 34h20M26 42h14'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 80px 80px;
+}
+
+.zoa-pattern-columns {
+  background-color: var(--zoa-blue);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='120' viewBox='0 0 64 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='1'%3E%3Cpath d='M20 20v80M32 16v88M44 20v80'/%3E%3Cpath d='M14 20h36M16 100h32'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(
+      ellipse 50% 60% at 90% 20%,
+      color-mix(in srgb, #ff9933 22%, transparent),
+      transparent 55%
+    );
+  background-size:
+    64px 120px,
+    100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zoa-rise,
+  .zoa-rise-delay,
+  .zoa-rise-delay-2,
+  .zoa-mark-in,
+  .zoa-float,
+  .zoa-glow,
+  .zoa-hero-kenburns {
+    animation: none;
+  }
+}

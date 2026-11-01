@@ -11,7 +11,10 @@ export type WorkflowSlug =
   | "company-limited-by-guarantee"
   | "incorporated-trustees"
   | "scuml-registration"
-  | "business-name-registration";
+  | "business-name-registration"
+  | "exporters-registration-certificate"
+  | "taxpromax-registration"
+  | "trademark-registration";
 
 export type FieldType =
   | "text"

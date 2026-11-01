@@ -16,9 +16,12 @@ forms/               Source questionnaires
 
 1. **Company limited by shares** — names, capital, shareholders & directors (add as many as needed), optional secretary, required witness (identity + structured address), per-person ID/signature uploads for shareholders/directors/secretary.
 2. **Company limited by guarantee** — names ending LTD/GTE, guarantee sum, subscribers & directors, optional secretary.
-3. **Incorporated trustees** — association details, constitution fields, trustees (add as needed), chairman designation, optional secretary.
+3. **Incorporated trustees** — association details, constitution fields, trustees (add as needed) with origin state/LGA, per-trustee ID/NIN/passport/signature uploads, meeting days, chairman designation, optional secretary, declaration/minutes/publications attachments.
 4. **SCUML registration** — organisation details, contact person, beneficial owners, directors/trustees, required supporting documents.
 5. **Business name registration** — proprietor identity, home & company addresses, two proposed names, nature of business, ID/signature/passport photos.
+6. **Exporters' registration certificate** — company and factory details, corporate overview, repeatable directors, export classification.
+7. **Taxpromax registration** — company and location, repeatable directors, nature of business, CAC/NIN/utility uploads (OTP step on Taxpromax).
+8. **Trademark registration** — proposed mark, owner and business details, optional logo and director signature.
 
 Repeatable people use **Add director / Add shareholder / Add subscriber / Add trustee** instead of fixed Director1…Director4 slots.
 
