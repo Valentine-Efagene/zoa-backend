@@ -2,6 +2,7 @@
 import * as cdk from "aws-cdk-lib";
 import { ZoaAuthStack } from "../lib/auth-stack";
 import { ZoaGithubOidcStack } from "../lib/github-oidc-stack";
+import { ZoaEmailStack } from "../lib/email-stack";
 import { ZoaStorageStack } from "../lib/storage-stack";
 
 const app = new cdk.App();
@@ -37,5 +38,18 @@ new ZoaGithubOidcStack(app, `ZoaGithubOidc-${stage}`, {
   // Only one GitHub OIDC provider per AWS account is allowed.
   createOidcProvider: app.node.tryGetContext("createOidcProvider") !== "false",
 });
+
+const emailApexDomain =
+  app.node.tryGetContext("emailApexDomain") ?? "zaynababdussalam.com";
+const deployEmailStack = app.node.tryGetContext("deployEmailStack") !== "false";
+
+if (deployEmailStack) {
+  new ZoaEmailStack(app, `ZoaEmail-${stage}`, {
+    env,
+    apexDomain: emailApexDomain,
+    mailSubdomain: app.node.tryGetContext("emailMailSubdomain") ?? "mail",
+    dmarcReportEmail: app.node.tryGetContext("emailDmarcReport"),
+  });
+}
 
 app.synth();

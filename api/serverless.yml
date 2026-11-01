@@ -17,6 +17,14 @@ provider:
     COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID, ''}
     COGNITO_CLIENT_ID: ${env:COGNITO_CLIENT_ID, ''}
     CORS_ORIGIN: ${env:CORS_ORIGIN, '*'}
+    EMAIL_ENABLED: ${env:EMAIL_ENABLED, 'false'}
+    EMAIL_TRANSPORT: ${env:EMAIL_TRANSPORT, 'ses'}
+    EMAIL_FROM: ${env:EMAIL_FROM, 'Z.O.A Filings <filings@mail.zaynababdussalam.com>'}
+    EMAIL_REPLY_TO: ${env:EMAIL_REPLY_TO, 'abdussalamzaynab@gmail.com'}
+    NOTIFY_ADMIN_EMAIL: ${env:NOTIFY_ADMIN_EMAIL, 'abdussalamzaynab@gmail.com'}
+    APP_BASE_URL: ${env:APP_BASE_URL, 'https://zoa-theta.vercel.app'}
+    SMTP_HOST: ${env:SMTP_HOST, '127.0.0.1'}
+    SMTP_PORT: ${env:SMTP_PORT, '1025'}
   httpApi:
     cors:
       allowedOrigins:
@@ -28,7 +36,6 @@ provider:
         - http://127.0.0.1:3001
         - http://127.0.0.1:3002
         - http://127.0.0.1:3003
-        - https://zoa-dq83.vercel.app
         - https://zoa-theta.vercel.app
       allowedHeaders:
         - Content-Type
@@ -62,6 +69,11 @@ provider:
             - s3:HeadObject
           Resource:
             - arn:aws:s3:::${self:provider.environment.DOCUMENTS_BUCKET}/*
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: "*"
 
 plugins:
   - serverless-esbuild

@@ -6,11 +6,27 @@ Multi-workflow registration product for Z.O.A: guided CAC-style questionnaires, 
 
 ```
 api/                 Lambda handlers (Serverless + esbuild)
-infra/aws/           CDK stacks — S3, DynamoDB, Cognito, GitHub OIDC
+infra/aws/           CDK stacks — S3, DynamoDB, Cognito, SES mail DNS, GitHub OIDC
 web/zoa/             Next.js app (Vercel)
 forms/               Source questionnaires
 .github/workflows/   Deploy API + infra via GitHub OIDC
 ```
+
+## Live environment
+
+There is **one** deployed stack for real filings. AWS names use the suffix **`dev`** (`zoa-applications-dev`, `zoa-users-dev`, `zoa-api-dev`) — that is a **misnomer**, not a throwaway sandbox. All live workflows and applicant data live there.
+
+| What | Value |
+| ---- | ----- |
+| Public app (Vercel) | `https://zoa-theta.vercel.app` |
+| API | `https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com` |
+| Deploy stage | Always **`dev`** (`serverless deploy --stage dev`, CDK `-c stage=dev`) |
+
+Do **not** deploy `--stage prod` or `staging` to “fix naming”: that creates **new**, empty resources (separate table, bucket, Cognito pool, API URL). Renaming in place does not happen.
+
+Local development uses localhost; Playwright UAT uses Floci/Mailpit (see below).
+
+**Canonical frontend:** use only `https://zoa-theta.vercel.app`. After changing `CORS_ORIGIN` / `APP_BASE_URL` in GitHub variables, run the [Deploy API](.github/workflows/deploy-api.yml) workflow (or `cd api && npx serverless deploy --stage dev`) so Lambda and HTTP API CORS match. On Vercel (theta project), set `NEXT_PUBLIC_API_URL` to the API URL above.
 
 ## Workflows (from `forms/`)
 
@@ -60,7 +76,12 @@ Repo **variables** (Settings → Secrets and variables → Actions → Variables
 | `DOCUMENTS_BUCKET`     | bucket name from stack output  |
 | `COGNITO_USER_POOL_ID` | user pool id                   |
 | `COGNITO_CLIENT_ID`    | app client id                  |
-| `CORS_ORIGIN`          | Vercel app URL                 |
+| `CORS_ORIGIN`          | `https://zoa-theta.vercel.app`  |
+| `EMAIL_ENABLED`        | `true` when SES is live (else `false`) |
+| `EMAIL_FROM`           | e.g. `Z.O.A Filings <filings@mail.zaynababdussalam.com>` |
+| `EMAIL_REPLY_TO`       | Monitored inbox (e.g. Gmail)   |
+| `NOTIFY_ADMIN_EMAIL`   | Admin alert on new submissions |
+| `APP_BASE_URL`         | `https://zoa-theta.vercel.app` (email links) |
 | `GITHUB_OWNER`         | optional override              |
 | `GITHUB_REPO`          | optional override              |
 
@@ -74,8 +95,43 @@ npm ci
 cp .env.example .env   # fill from CDK outputs
 npx serverless offline # http://localhost:4000
 # or
+# Deploy live API (stage dev only — see Live environment above)
 npx serverless deploy --stage dev
 ```
+
+Copy [`api/.env.example`](api/.env.example) for local env. On the **live** Lambda, set `EMAIL_ENABLED=true` in GitHub variables when SES is ready (default deploy keeps it `false`).
+
+## Transactional email (Amazon SES)
+
+Cognito still sends auth mail (signup / reset). Business mail (submission confirmation, admin alert, status updates) goes through **SES** from `mail.zaynababdussalam.com`.
+
+### 1. CDK — DNS + SES identity
+
+Hosted zone for `zaynababdussalam.com` must be in the **same AWS account** as the stack (Route53 lookup at synth time):
+
+```bash
+cd infra/aws
+npx cdk deploy ZoaEmail-dev -c stage=dev
+# Skip email stack: -c deployEmailStack=false
+# Other apex domain: -c emailApexDomain=example.com
+```
+
+Stack creates SES identity for `mail.<apex>`, DKIM CNAMEs, SPF on `mail`, and DMARC on `_dmarc`. Outputs include suggested `EMAIL_FROM`.
+
+### 2. SES production access (one-time, console)
+
+While the account is in the **SES sandbox**, mail only reaches verified addresses. After the sending domain shows **Verified**, submit [production access](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html) (transactional filing notifications, low volume, no marketing). This step is not deployable via CDK.
+
+### 3. Enable on the API
+
+Set GitHub variables (or `api/.env` locally):
+
+- `EMAIL_ENABLED=true`
+- `EMAIL_FROM`, `EMAIL_REPLY_TO`, `NOTIFY_ADMIN_EMAIL`, `APP_BASE_URL`
+
+Lambda IAM includes `ses:SendEmail` (see [`api/serverless.yml`](api/serverless.yml)).
+
+**Local / UAT:** `EMAIL_TRANSPORT=smtp` with Mailpit (`SMTP_HOST=127.0.0.1`, `SMTP_PORT=1025`) — see [`api/.env.uat.example`](api/.env.uat.example).
 
 ## 4. Web (Vercel)
 
@@ -88,7 +144,7 @@ npm run dev
 
 Vercel env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_COGNITO_USER_POOL_ID`, `NEXT_PUBLIC_COGNITO_CLIENT_ID`, `NEXT_PUBLIC_AWS_REGION`.
 
-Without Cognito env vars, the UI uses a mock session so forms can be exercised locally (API accepts `dev-token` when Cognito is unset and stage ≠ prod). Sign in with an email starting with `admin` (or password `admin`) for a local admin session.
+Without Cognito env vars, the UI uses a mock session locally (API accepts `dev-token` when Cognito is unset and `STAGE` is not `prod`). The **live** API uses real Cognito with `STAGE=dev`. Sign in with an email starting with `admin` (or password `admin`) for a local admin session.
 
 ## Roles (Cognito groups)
 

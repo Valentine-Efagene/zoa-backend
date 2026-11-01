@@ -17,6 +17,8 @@ export class ZoaAuthStack extends cdk.Stack {
 
     const { stage, callbackUrls, logoutUrls } = props;
 
+    // Live workload uses stage=dev. stage === "prod" RETAIN policies apply only if a separate prod stack is created.
+
     this.userPool = new cognito.UserPool(this, "UserPool", {
       userPoolName: `zoa-users-${stage}`,
       selfSignUpEnabled: true,

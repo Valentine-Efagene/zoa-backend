@@ -16,6 +16,9 @@ export class ZoaStorageStack extends cdk.Stack {
 
     const { stage } = props;
 
+    // Live workload uses stage=dev. Branches on stage === "prod" are for a hypothetical
+    // future stack only — do not deploy prod expecting to rename existing dev resources.
+
     this.documentsBucket = new s3.Bucket(this, "DocumentsBucket", {
       bucketName: `zoa-documents-${stage}-${this.account}`,
       encryption: s3.BucketEncryption.S3_MANAGED,

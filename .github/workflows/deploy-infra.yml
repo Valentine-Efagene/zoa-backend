@@ -6,17 +6,16 @@ on:
     paths:
       - "infra/aws/**"
       - ".github/workflows/deploy-infra.yml"
+# Live data is on *-dev AWS resources; do not deploy other stages without a migration plan.
   workflow_dispatch:
     inputs:
       stage:
-        description: Deployment stage
+        description: Deployment stage (live stack only)
         required: true
         default: dev
         type: choice
         options:
           - dev
-          - staging
-          - prod
 
 permissions:
   id-token: write

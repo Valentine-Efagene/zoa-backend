@@ -6,17 +6,16 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/deploy-api.yml"
+# Live data is on *-dev AWS resources; do not deploy other stages without a migration plan.
   workflow_dispatch:
     inputs:
       stage:
-        description: Deployment stage
+        description: Deployment stage (live stack only)
         required: true
         default: dev
         type: choice
         options:
           - dev
-          - staging
-          - prod
 
 permissions:
   id-token: write
@@ -41,6 +40,11 @@ jobs:
       COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
       COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
       CORS_ORIGIN: ${{ vars.CORS_ORIGIN || '*' }}
+      EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
+      EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+      EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
+      NOTIFY_ADMIN_EMAIL: ${{ vars.NOTIFY_ADMIN_EMAIL }}
+      APP_BASE_URL: ${{ vars.APP_BASE_URL }}
 
     steps:
       - name: Checkout

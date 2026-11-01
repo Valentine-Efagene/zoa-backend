@@ -29,6 +29,11 @@ import {
 } from "../lib/types";
 import { getWorkflow } from "../lib/workflows";
 import {
+  sendSubmissionNotifications,
+  sendStatusChangeNotification,
+} from "../lib/email-templates";
+import { getEmailSettings } from "../lib/email";
+import {
   badRequest,
   created,
   forbidden,
@@ -320,14 +325,25 @@ export const update: APIGatewayProxyHandlerV2 = async (event) => {
       }),
     );
 
-    return ok(
-      {
-        application: toApplication(
-          result.Attributes as Record<string, unknown>,
-        ),
-      },
-      origin,
+    const application = toApplication(
+      result.Attributes as Record<string, unknown>,
     );
+
+    if (parsed.data.status === "submitted" && application.applicantEmail) {
+      const workflow = getWorkflow(application.workflowSlug);
+      const settings = getEmailSettings();
+      void sendSubmissionNotifications({
+        applicationId: application.id,
+        workflowName: workflow?.name ?? application.workflowSlug,
+        workflowSlug: application.workflowSlug,
+        submittedAt: application.submittedAt ?? now,
+        applicantEmail: application.applicantEmail,
+        applicantName: application.applicantName ?? user.name,
+        appBaseUrl: settings.appBaseUrl,
+      }).catch((err) => console.error("Submission email failed", err));
+    }
+
+    return ok({ application }, origin);
   } catch (err) {
     return authErrorResponse(err, origin);
   }
@@ -441,6 +457,8 @@ export const adminUpdate: APIGatewayProxyHandlerV2 = async (event) => {
     const item = await getItemByApplicationId(id);
     if (!item) return notFound("Application not found", origin);
 
+    const previousStatus = String(item.status) as ApplicationStatus;
+
     const now = new Date().toISOString();
     const names = ["#updatedAt", "#status", "#gsiAdminPk", "#gsiAdminSk"];
     const values: Record<string, unknown> = {
@@ -478,14 +496,29 @@ export const adminUpdate: APIGatewayProxyHandlerV2 = async (event) => {
       }),
     );
 
-    return ok(
-      {
-        application: toApplication(
-          result.Attributes as Record<string, unknown>,
-        ),
-      },
-      origin,
+    const application = toApplication(
+      result.Attributes as Record<string, unknown>,
     );
+
+    if (
+      parsed.data.status !== previousStatus &&
+      application.applicantEmail
+    ) {
+      const workflow = getWorkflow(application.workflowSlug);
+      const settings = getEmailSettings();
+      void sendStatusChangeNotification({
+        applicationId: application.id,
+        workflowName: workflow?.name ?? application.workflowSlug,
+        previousStatus,
+        newStatus: application.status,
+        applicantEmail: application.applicantEmail,
+        applicantName: application.applicantName,
+        adminNote: application.adminNote,
+        appBaseUrl: settings.appBaseUrl,
+      }).catch((err) => console.error("Status email failed", err));
+    }
+
+    return ok({ application }, origin);
   } catch (err) {
     return authErrorResponse(err, origin);
   }
