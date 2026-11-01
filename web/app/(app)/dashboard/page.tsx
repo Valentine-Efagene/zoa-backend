@@ -5,10 +5,8 @@ import { ArrowRight, FileText, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ListSkeleton,
-  StatSkeleton,
-} from "@/components/loading";
+import { ListSkeleton } from "@/components/loading";
+import { DashboardAnalytics } from "@/components/dashboard-analytics";
 import {
   useApplications,
   useWorkflows,
@@ -27,11 +25,6 @@ export default function DashboardPage() {
   const error =
     applicationsQuery.error?.message ?? workflowsQuery.error?.message ?? null;
 
-  const draftCount = applications.filter((a) => a.status === "draft").length;
-  const openCount = applications.filter((a) =>
-    ["submitted", "in_review", "needs_info"].includes(a.status),
-  ).length;
-
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -47,25 +40,11 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {loading
-          ? Array.from({ length: 3 }, (_, i) => <StatSkeleton key={i} />)
-          : [
-              { label: "Total applications", value: applications.length },
-              { label: "Drafts", value: draftCount },
-              { label: "In progress", value: openCount },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-xl border border-border/70 bg-background/80 px-4 py-4"
-              >
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="mt-1 font-[family-name:var(--font-display)] text-3xl tracking-tight">
-                  {stat.value}
-                </p>
-              </div>
-            ))}
-      </div>
+      <DashboardAnalytics
+        applications={applications}
+        loading={loading}
+        isAdmin={Boolean(session?.isAdmin)}
+      />
 
       {error ? (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
@@ -90,7 +69,8 @@ export default function DashboardPage() {
           <div className="rounded-xl border border-dashed border-border bg-background/50 px-6 py-12 text-center">
             <FileText className="mx-auto size-8 text-muted-foreground/60" />
             <p className="mt-3 text-sm text-muted-foreground">
-              No applications yet. Start a company, trustees, or SCUML filing.
+              No applications yet. Start a company, trustees, tax, export, or
+              trademark filing.
             </p>
             <Button className="mt-4" render={<Link href="/applications/new" />}>
               Choose a workflow

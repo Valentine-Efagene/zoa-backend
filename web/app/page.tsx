@@ -1,27 +1,67 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Building2, FileCheck2, Landmark, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  FileCheck2,
+  Globe2,
+  Landmark,
+  Scale,
+  Stamp,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 
-const services = [
+const filingTypes = [
   {
     icon: Building2,
-    title: "Company registration",
+    title: "Company limited by shares",
     description:
-      "Incorporate with CAC — directors, shareholders, and supporting documents captured in one guided flow.",
+      "CAC incorporation with shareholders, directors, capital, witness, and identity uploads.",
+  },
+  {
+    icon: Scale,
+    title: "Company limited by guarantee",
+    description:
+      "LTD/GTE structures with guarantee sum, subscribers, and directors.",
+  },
+  {
+    icon: Users,
+    title: "Incorporated trustees",
+    description:
+      "Associations and NGOs — trustees, constitution fields, meeting records, and publications.",
   },
   {
     icon: Landmark,
-    title: "Business name",
+    title: "Business name registration",
     description:
-      "Register a business name with clear steps, identity capture, and uploads ready for filing.",
+      "Sole proprietor business names with proprietor details and ID uploads.",
   },
   {
     icon: FileCheck2,
-    title: "SCUML filings",
+    title: "SCUML registration",
     description:
-      "Prepare SCUML applications with structured fields and the documents regulators expect.",
+      "Special Control Unit against Money Laundering filings with beneficial owners and officials.",
+  },
+  {
+    icon: Wallet,
+    title: "Taxpromax registration",
+    description:
+      "FIRS Taxpromax onboarding — company location, directors, and supporting documents.",
+  },
+  {
+    icon: Globe2,
+    title: "Exporters' registration certificate",
+    description:
+      "NEPC export registration with company overview, directors, and product classification.",
+  },
+  {
+    icon: Stamp,
+    title: "Trademark registration",
+    description:
+      "Protect a mark — owner details, business class, logo, and signature.",
   },
 ];
 
@@ -29,7 +69,7 @@ const steps = [
   {
     step: "01",
     title: "Choose a workflow",
-    description: "Pick company, business name, or SCUML and start a draft instantly.",
+    description: "Pick any filing type — company, tax, export, trademark, or SCUML — and start a draft instantly.",
   },
   {
     step: "02",
@@ -114,8 +154,9 @@ export default function HomePage() {
               Z.O.A
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-white/90 zoa-rise-delay sm:text-xl">
-              Lawyer-led help registering your company, business name, or SCUML
-              filing — guided forms, documents, and progress in one place.
+              Lawyer-led help with CAC companies, business names, trustees,
+              SCUML, Taxpromax, export registration, and trademarks — guided
+              forms, documents, and progress in one place.
             </p>
             <div className="mt-9 flex flex-wrap gap-3 zoa-rise-delay-2">
               <Button
@@ -149,28 +190,27 @@ export default function HomePage() {
             Legal help to get your business registered
           </h2>
           <p className="mt-4 max-w-lg text-muted-foreground">
-            Z.O.A Corporate Service Limited — lawyer-guided CAC filings so
-            founders get company, business name, and SCUML applications done
-            without the paperwork maze.
+            Z.O.A Corporate Service Limited — lawyer-guided filings across the
+            workflows below, without the spreadsheet scramble.
           </p>
 
-          <ul className="mt-14 divide-y divide-[var(--zoa-blue)]/12 border-y border-[var(--zoa-blue)]/12">
-            {services.map((service) => (
+          <ul className="mt-14 grid gap-0 divide-y divide-[var(--zoa-blue)]/12 border-y border-[var(--zoa-blue)]/12 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            {filingTypes.map((item) => (
               <li
-                key={service.title}
-                className="grid gap-4 py-8 sm:grid-cols-[auto_1fr] sm:gap-8 sm:py-10"
+                key={item.title}
+                className="grid gap-4 px-0 py-8 sm:gap-6 sm:px-8 sm:py-10 [&:nth-child(odd)]:sm:border-r [&:nth-child(odd)]:sm:border-[var(--zoa-blue)]/12"
               >
-                <service.icon
+                <item.icon
                   className="size-8 text-[var(--zoa-blue)]"
                   strokeWidth={1.5}
                   aria-hidden
                 />
                 <div>
-                  <h3 className="font-[family-name:var(--font-display)] text-xl tracking-tight text-foreground">
-                    {service.title}
+                  <h3 className="font-[family-name:var(--font-display)] text-lg tracking-tight text-foreground sm:text-xl">
+                    {item.title}
                   </h3>
-                  <p className="mt-2 max-w-xl text-muted-foreground">
-                    {service.description}
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {item.description}
                   </p>
                 </div>
               </li>
