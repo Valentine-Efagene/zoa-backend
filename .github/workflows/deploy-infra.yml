@@ -6,15 +6,15 @@ on:
     paths:
       - "infra/aws/**"
       - ".github/workflows/deploy-infra.yml"
-# Live data is on *-dev AWS resources; do not deploy other stages without a migration plan.
   workflow_dispatch:
     inputs:
       stage:
-        description: Deployment stage (live stack only)
+        description: Deployment stage
         required: true
-        default: dev
+        default: prod
         type: choice
         options:
+          - prod
           - dev
 
 permissions:
@@ -22,18 +22,19 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-infra-${{ github.event.inputs.stage || 'dev' }}
+  group: deploy-infra-${{ github.event.inputs.stage || 'prod' }}
   cancel-in-progress: false
 
 jobs:
   deploy:
     name: Deploy CDK stacks
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'dev' && 'development' || 'production' }}
     defaults:
       run:
         working-directory: infra/aws
     env:
-      STAGE: ${{ github.event.inputs.stage || 'dev' }}
+      STAGE: ${{ github.event.inputs.stage || 'prod' }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
 
     steps:
@@ -50,8 +51,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # First bootstrap / OIDC stack deploy may need admin credentials from a
-      # one-time local deploy. Subsequent runs use the infra OIDC role.
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -65,5 +64,6 @@ jobs:
         run: >
           npx cdk deploy --all --require-approval never
           -c stage="$STAGE"
+          -c createOidcProvider=false
           -c githubOwner="${{ vars.GITHUB_OWNER || github.repository_owner }}"
           -c githubRepo="${{ vars.GITHUB_REPO || github.event.repository.name }}"

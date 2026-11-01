@@ -12,21 +12,24 @@ forms/               Source questionnaires
 .github/workflows/   Deploy API + infra via GitHub OIDC
 ```
 
-## Live environment
+## Production and development
 
-There is **one** deployed stack for real filings. AWS names use the suffix **`dev`** (`zoa-applications-dev`, `zoa-users-dev`, `zoa-api-dev`) — that is a **misnomer**, not a throwaway sandbox. All live workflows and applicant data live there.
+| | **Production** | **Development** |
+|--|--|--|
+| Web | https://zoa-theta.vercel.app | https://zoa-dev.vercel.app (second Vercel project) |
+| API stage | `prod` | `dev` |
+| API URL | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com | https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com |
+| Cognito | `zoa-users-prod` | `zoa-users-dev` |
 
-| What | Value |
-| ---- | ----- |
-| Public app (Vercel) | `https://zoa-theta.vercel.app` |
-| API | `https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com` |
-| Deploy stage | Always **`dev`** (`serverless deploy --stage dev`, CDK `-c stage=dev`) |
+Full IDs, GitHub environment variables, and Vercel env blocks: **[docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md)**.
 
-Do **not** deploy `--stage prod` or `staging` to “fix naming”: that creates **new**, empty resources (separate table, bucket, Cognito pool, API URL). Renaming in place does not happen.
+- **Deploy prod:** `cd api && npm run deploy`
+- **Deploy dev:** `cd api && npm run deploy:dev`
+- **CDK:** `npx cdk deploy --all -c stage=prod|dev -c deployEmailStack=false -c createOidcProvider=false` (email DNS is a single shared `ZoaEmail-dev` stack)
+
+Push to `main` deploys the **prod** API via GitHub Actions (`production` environment). Use workflow dispatch to deploy **dev**.
 
 Local development uses localhost; Playwright UAT uses Floci/Mailpit (see below).
-
-**Canonical frontend:** use only `https://zoa-theta.vercel.app`. After changing `CORS_ORIGIN` / `APP_BASE_URL` in GitHub variables, run the [Deploy API](.github/workflows/deploy-api.yml) workflow (or `cd api && npx serverless deploy --stage dev`) so Lambda and HTTP API CORS match. On Vercel (theta project), set `NEXT_PUBLIC_API_URL` to the API URL above.
 
 ## Workflows (from `forms/`)
 
@@ -65,26 +68,23 @@ npx cdk deploy --all -c stage=dev -c createOidcProvider=false -c githubOwner=...
 **DynamoDB note:** AWS allows only one GSI create/delete per table update. New indexes are added across deploys (`gsi-admin` first, then `gsi-by-id`). If a deploy fails with “more than one GSI creation”, keep a single new GSI in `storage-stack.ts`, re-deploy, then add the next.
 ## 2. GitHub Actions (OIDC)
 
-Repo **variables** (Settings → Secrets and variables → Actions → Variables):
+Use GitHub **environments** `production` and `development` with the variable sets in [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md).
 
-| Variable               | Value                          |
-| ---------------------- | ------------------------------ |
-| `AWS_REGION`           | `us-east-1` (match CDK deploy) |
-| `AWS_DEPLOY_ROLE_ARN`  | Api deploy role ARN from CDK   |
-| `AWS_INFRA_ROLE_ARN`   | Infra deploy role ARN from CDK |
-| `APPLICATIONS_TABLE`   | e.g. `zoa-applications-dev`    |
-| `DOCUMENTS_BUCKET`     | bucket name from stack output  |
-| `COGNITO_USER_POOL_ID` | user pool id                   |
-| `COGNITO_CLIENT_ID`    | app client id                  |
-| `CORS_ORIGIN`          | `https://zoa-theta.vercel.app`  |
-| `EMAIL_ENABLED`        | defaults to `true`; set `false` to disable sending |
-| `EMAIL_FROM`           | e.g. `Z.O.A Filings <filings@mail.zaynababdussalam.com>` |
-| `EMAIL_REPLY_TO`       | Monitored inbox (e.g. Gmail)   |
-| `NOTIFY_ADMIN_EMAIL`   | Admin alert on new submissions |
-| `APP_BASE_URL`         | `https://zoa-theta.vercel.app` (email links) |
-| `EMAIL_TEMPLATES_TABLE`| e.g. `zoa-email-templates-dev` (after CDK) |
-| `GITHUB_OWNER`         | optional override              |
-| `GITHUB_REPO`          | optional override              |
+| Variable               | Notes |
+| ---------------------- | ----- |
+| `AWS_REGION`           | `us-east-1` |
+| `AWS_DEPLOY_ROLE_ARN`  | Per-environment deploy role from `ZoaGithubOidc-{stage}` |
+| `AWS_INFRA_ROLE_ARN`   | Per-environment infra role |
+| `APPLICATIONS_TABLE`   | `zoa-applications-prod` or `-dev` |
+| `DOCUMENTS_BUCKET`     | From `ZoaStorage-{stage}` output |
+| `COGNITO_USER_POOL_ID` | From `ZoaAuth-{stage}` |
+| `COGNITO_CLIENT_ID`    | From `ZoaAuth-{stage}` |
+| `CORS_ORIGIN`          | Theta or zoa-dev Vercel URL |
+| `APP_BASE_URL`         | Same as primary frontend for that stage |
+| `EMAIL_TEMPLATES_TABLE`| `zoa-email-templates-{stage}` |
+| `EMAIL_ENABLED`        | defaults to `true` |
+| `EMAIL_FROM` / `EMAIL_REPLY_TO` / `NOTIFY_ADMIN_EMAIL` | SES mail |
+| `GITHUB_OWNER` / `GITHUB_REPO` | optional (`Valentine-Efagene` / `zoa-backend`) |
 
 No long-lived `AWS_ACCESS_KEY_ID` is required — workflows assume roles via OIDC.
 
@@ -96,8 +96,10 @@ npm ci
 cp .env.example .env   # fill from CDK outputs
 npx serverless offline # http://localhost:4000
 # or
-# Deploy live API (stage dev only — see Live environment above)
-npx serverless deploy --stage dev
+# Deploy prod API
+npx serverless deploy --stage prod
+# Deploy dev API
+npm run deploy:dev
 ```
 
 Copy [`api/.env.example`](api/.env.example) for local env. Live deploys default **`EMAIL_ENABLED=true`** (override with GitHub variable `EMAIL_ENABLED=false` if needed). Until SES leaves sandbox, sends to unverified addresses fail silently (API does not block submissions).

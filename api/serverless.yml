@@ -5,7 +5,7 @@ frameworkVersion: "3"
 provider:
   name: aws
   runtime: nodejs20.x
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'prod'}
   region: ${opt:region, 'us-east-1'}
   memorySize: 256
   timeout: 29
@@ -38,6 +38,7 @@ provider:
         - http://127.0.0.1:3002
         - http://127.0.0.1:3003
         - https://zoa-theta.vercel.app
+        - https://zoa-dev.vercel.app
       allowedHeaders:
         - Content-Type
         - Authorization

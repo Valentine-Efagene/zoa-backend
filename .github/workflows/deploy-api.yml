@@ -6,15 +6,15 @@ on:
     paths:
       - "api/**"
       - ".github/workflows/deploy-api.yml"
-# Live data is on *-dev AWS resources; do not deploy other stages without a migration plan.
   workflow_dispatch:
     inputs:
       stage:
-        description: Deployment stage (live stack only)
+        description: Deployment stage
         required: true
-        default: dev
+        default: prod
         type: choice
         options:
+          - prod
           - dev
 
 permissions:
@@ -22,18 +22,19 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-api-${{ github.event.inputs.stage || 'dev' }}
+  group: deploy-api-${{ github.event.inputs.stage || 'prod' }}
   cancel-in-progress: false
 
 jobs:
   deploy:
     name: Deploy Serverless API
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'dev' && 'development' || 'production' }}
     defaults:
       run:
         working-directory: api
     env:
-      STAGE: ${{ github.event.inputs.stage || 'dev' }}
+      STAGE: ${{ github.event.inputs.stage || 'prod' }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
       APPLICATIONS_TABLE: ${{ vars.APPLICATIONS_TABLE }}
       DOCUMENTS_BUCKET: ${{ vars.DOCUMENTS_BUCKET }}
@@ -45,7 +46,7 @@ jobs:
       EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
       NOTIFY_ADMIN_EMAIL: ${{ vars.NOTIFY_ADMIN_EMAIL }}
       APP_BASE_URL: ${{ vars.APP_BASE_URL }}
-      EMAIL_TEMPLATES_TABLE: ${{ vars.EMAIL_TEMPLATES_TABLE || 'zoa-email-templates-dev' }}
+      EMAIL_TEMPLATES_TABLE: ${{ vars.EMAIL_TEMPLATES_TABLE }}
 
     steps:
       - name: Checkout

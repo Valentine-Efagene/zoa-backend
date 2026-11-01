@@ -4,15 +4,19 @@
   "private": true,
   "scripts": {
     "build": "esbuild src/handlers/**/*.ts --bundle --platform=node --target=node20 --outdir=dist --format=cjs --sourcemap",
-    "deploy": "serverless deploy --stage dev",
+    "deploy": "serverless deploy --stage prod",
+    "deploy:dev": "serverless deploy --stage dev",
     "remove": "serverless remove",
     "offline": "serverless offline",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "node --import tsx --test src/lib/**/*.test.ts",
-    "seed:email-templates": "tsx scripts/seed-email-templates.ts"
+    "seed:email-templates": "tsx scripts/seed-email-templates.ts",
+    "migrate:user-to-prod": "tsx scripts/migrate-user-to-prod.ts",
+    "provision:prod-admins": "tsx scripts/provision-prod-admins.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.787.0",
     "@aws-sdk/client-dynamodb": "^3.787.0",
     "@aws-sdk/client-s3": "^3.787.0",
     "@aws-sdk/client-sesv2": "^3.1161.0",
