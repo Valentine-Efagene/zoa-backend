@@ -17,7 +17,7 @@ provider:
     COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID, ''}
     COGNITO_CLIENT_ID: ${env:COGNITO_CLIENT_ID, ''}
     CORS_ORIGIN: ${env:CORS_ORIGIN, '*'}
-    EMAIL_ENABLED: ${env:EMAIL_ENABLED, 'false'}
+    EMAIL_ENABLED: ${env:EMAIL_ENABLED, 'true'}
     EMAIL_TRANSPORT: ${env:EMAIL_TRANSPORT, 'ses'}
     EMAIL_FROM: ${env:EMAIL_FROM, 'Z.O.A Filings <filings@mail.zaynababdussalam.com>'}
     EMAIL_REPLY_TO: ${env:EMAIL_REPLY_TO, 'abdussalamzaynab@gmail.com'}

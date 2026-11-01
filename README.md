@@ -77,7 +77,7 @@ Repo **variables** (Settings → Secrets and variables → Actions → Variables
 | `COGNITO_USER_POOL_ID` | user pool id                   |
 | `COGNITO_CLIENT_ID`    | app client id                  |
 | `CORS_ORIGIN`          | `https://zoa-theta.vercel.app`  |
-| `EMAIL_ENABLED`        | `true` when SES is live (else `false`) |
+| `EMAIL_ENABLED`        | defaults to `true`; set `false` to disable sending |
 | `EMAIL_FROM`           | e.g. `Z.O.A Filings <filings@mail.zaynababdussalam.com>` |
 | `EMAIL_REPLY_TO`       | Monitored inbox (e.g. Gmail)   |
 | `NOTIFY_ADMIN_EMAIL`   | Admin alert on new submissions |
@@ -99,7 +99,7 @@ npx serverless offline # http://localhost:4000
 npx serverless deploy --stage dev
 ```
 
-Copy [`api/.env.example`](api/.env.example) for local env. On the **live** Lambda, set `EMAIL_ENABLED=true` in GitHub variables when SES is ready (default deploy keeps it `false`).
+Copy [`api/.env.example`](api/.env.example) for local env. Live deploys default **`EMAIL_ENABLED=true`** (override with GitHub variable `EMAIL_ENABLED=false` if needed). Until SES leaves sandbox, sends to unverified addresses fail silently (API does not block submissions).
 
 ## Transactional email (Amazon SES)
 
@@ -124,9 +124,7 @@ While the account is in the **SES sandbox**, mail only reaches verified addresse
 
 ### 3. Enable on the API
 
-Set GitHub variables (or `api/.env` locally):
-
-- `EMAIL_ENABLED=true`
+Defaults are already on (`EMAIL_ENABLED=true` in [`api/serverless.yml`](api/serverless.yml) and the deploy workflow). Redeploy after changing email settings. Optional GitHub variables:
 - `EMAIL_FROM`, `EMAIL_REPLY_TO`, `NOTIFY_ADMIN_EMAIL`, `APP_BASE_URL`
 
 Lambda IAM includes `ses:SendEmail` (see [`api/serverless.yml`](api/serverless.yml)).

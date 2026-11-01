@@ -40,7 +40,7 @@ jobs:
       COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
       COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
       CORS_ORIGIN: ${{ vars.CORS_ORIGIN || '*' }}
-      EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
+      EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'true' }}
       EMAIL_FROM: ${{ vars.EMAIL_FROM }}
       EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
       NOTIFY_ADMIN_EMAIL: ${{ vars.NOTIFY_ADMIN_EMAIL }}

@@ -36,11 +36,25 @@ export class ZoaEmailStack extends cdk.Stack {
       dkimSigning: true,
     });
 
-    identity.dkimRecords.forEach((record, index) => {
-      new route53.CnameRecord(this, `DkimRecord${index}`, {
-        zone,
-        recordName: record.name,
-        domainName: record.value,
+    /** DkimDNSTokenName* from SES is already the full host (e.g. xxx._domainkey.mail.example.com). */
+    const dkimNames = [
+      identity.dkimDnsTokenName1,
+      identity.dkimDnsTokenName2,
+      identity.dkimDnsTokenName3,
+    ];
+    const dkimValues = [
+      identity.dkimDnsTokenValue1,
+      identity.dkimDnsTokenValue2,
+      identity.dkimDnsTokenValue3,
+    ];
+
+    dkimNames.forEach((tokenName, index) => {
+      new route53.CfnRecordSet(this, `DkimRecord${index}`, {
+        hostedZoneId: zone.hostedZoneId,
+        name: cdk.Fn.join("", [tokenName, "."]),
+        type: "CNAME",
+        ttl: "1800",
+        resourceRecords: [cdk.Fn.join("", [dkimValues[index], "."])],
       });
     });
 
