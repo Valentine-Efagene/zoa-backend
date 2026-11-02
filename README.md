@@ -21,7 +21,7 @@ forms/               Source questionnaires
 | API URL | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com | https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com |
 | Cognito | `zoa-users-prod` | `zoa-users-dev` |
 
-Full IDs, GitHub environment variables, and Vercel env blocks: **[docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md)**.
+Full IDs, GitHub environment variables, and Vercel env blocks: **[docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md)**. Second Vercel project for dev: **[docs/VERCEL-SETUP.md](docs/VERCEL-SETUP.md)**.
 
 - **Deploy prod:** `cd api && npm run deploy`
 - **Deploy dev:** `cd api && npm run deploy:dev`

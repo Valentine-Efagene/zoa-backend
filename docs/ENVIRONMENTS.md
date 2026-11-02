@@ -11,7 +11,7 @@
 - Push to **`dev`** deploys `zoa-api-dev`.
 - Non-secret defaults live in [`.github/env/`](.github/env/) (OIDC role ARNs, table names, CORS). Optional GitHub **environment** variables override those values.
 
-In Vercel: set **Production Branch** = `main` on the theta project; create a second project (or branch-specific env) for **`dev`** → `zoa-dev.vercel.app`.
+In Vercel: set **Production Branch** = `main` on the theta project; create a second project for **`dev`** → `zoa-dev.vercel.app`. Step-by-step: **[docs/VERCEL-SETUP.md](./VERCEL-SETUP.md)**.
 
 ## Production (customer-facing)
 
@@ -34,6 +34,7 @@ NEXT_PUBLIC_API_URL=https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com
 NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_wOS1H6CvG
 NEXT_PUBLIC_COGNITO_CLIENT_ID=23cb2sc86kg65gpdvekksg91l1
 NEXT_PUBLIC_AWS_REGION=us-east-1
+NEXT_PUBLIC_APP_ENV=production
 ```
 
 Redeploy theta after updating env vars.
@@ -42,7 +43,7 @@ Redeploy theta after updating env vars.
 
 | | |
 |--|--|
-| **Web** | https://zoa-dev.vercel.app (create new Vercel project, same repo, `web/` root) |
+| **Web** | https://zoa-dev.vercel.app — **requires a second Vercel project** ([setup guide](./VERCEL-SETUP.md)) |
 | **API** | https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com |
 | **API docs (Swagger)** | https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com/docs — same Basic Auth as prod |
 | **Cognito pool** | `us-east-1_SBHMsacSo` |
@@ -59,6 +60,7 @@ NEXT_PUBLIC_API_URL=https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com
 NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_SBHMsacSo
 NEXT_PUBLIC_COGNITO_CLIENT_ID=2b2dji6ivplc1q7ea3ke4gcccu
 NEXT_PUBLIC_AWS_REGION=us-east-1
+NEXT_PUBLIC_APP_ENV=development
 ```
 
 ## GitHub Actions environments

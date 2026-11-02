@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { AuthProvider } from "@/components/auth-provider";
+import { DevEnvironmentBanner } from "@/components/dev-environment-banner";
 import { QueryProvider } from "@/components/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans">
         <QueryProvider>
           <AuthProvider>
+            <DevEnvironmentBanner />
             {children}
             <Toaster position="top-center" />
           </AuthProvider>
