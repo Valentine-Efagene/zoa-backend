@@ -8,6 +8,10 @@ export interface ZoaGithubOidcStackProps extends cdk.StackProps {
   githubOwner: string;
   /** Repository name, e.g. "zoa" */
   githubRepo: string;
+  /** Numeric owner id (immutable OIDC sub); optional legacy-only repos */
+  githubOwnerId?: string;
+  /** Numeric repository id (immutable OIDC sub); optional legacy-only repos */
+  githubRepoId?: string;
   /**
    * Set false if the account already has a GitHub Actions OIDC provider
    * (only one is allowed per account for this issuer).
@@ -30,9 +34,16 @@ export class ZoaGithubOidcStack extends cdk.Stack {
       stage,
       githubOwner,
       githubRepo,
+      githubOwnerId,
+      githubRepoId,
       createOidcProvider = true,
     } = props;
-    const repoSub = `repo:${githubOwner}/${githubRepo}:*`;
+    const repoSubPatterns = [`repo:${githubOwner}/${githubRepo}:*`];
+    if (githubOwnerId && githubRepoId) {
+      repoSubPatterns.push(
+        `repo:${githubOwner}@${githubOwnerId}/${githubRepo}@${githubRepoId}:*`,
+      );
+    }
 
     const oidcProvider = createOidcProvider
       ? new iam.OpenIdConnectProvider(this, "GithubOidc", {
@@ -51,7 +62,10 @@ export class ZoaGithubOidcStack extends cdk.Stack {
         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
       },
       StringLike: {
-        "token.actions.githubusercontent.com:sub": repoSub,
+        "token.actions.githubusercontent.com:sub":
+          repoSubPatterns.length === 1
+            ? repoSubPatterns[0]
+            : repoSubPatterns,
       },
     });
 

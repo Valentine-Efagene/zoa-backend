@@ -31,8 +31,12 @@ const env = {
 };
 
 const stage = app.node.tryGetContext("stage") ?? "dev";
-const githubOwner = app.node.tryGetContext("githubOwner") ?? "REPLACE_GITHUB_OWNER";
+const githubOwner = app.node.tryGetContext("githubOwner") ?? "Valentine-Efagene";
 const githubRepo = app.node.tryGetContext("githubRepo") ?? "zoa-backend";
+const githubOwnerId =
+  app.node.tryGetContext("githubOwnerId") ?? "33757347";
+const githubRepoId =
+  app.node.tryGetContext("githubRepoId") ?? "1325242709";
 
 const defaultCallbackUrls =
   stage === "prod"
@@ -68,6 +72,8 @@ new ZoaGithubOidcStack(app, `ZoaGithubOidc-${stage}`, {
   stage,
   githubOwner,
   githubRepo,
+  githubOwnerId,
+  githubRepoId,
   // Only one GitHub OIDC provider per AWS account is allowed.
   createOidcProvider: app.node.tryGetContext("createOidcProvider") !== "false",
 });

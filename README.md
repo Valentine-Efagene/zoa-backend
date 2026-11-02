@@ -85,6 +85,7 @@ Use GitHub **environments** `production` and `development` with the variable set
 | `EMAIL_ENABLED`        | defaults to `true` |
 | `EMAIL_FROM` / `EMAIL_REPLY_TO` / `NOTIFY_ADMIN_EMAIL` | SES mail |
 | `GITHUB_OWNER` / `GITHUB_REPO` | optional (`Valentine-Efagene` / `zoa-backend`) |
+| `githubOwnerId` / `githubRepoId` | CDK context for [immutable OIDC `sub`](https://docs.github.com/en/actions/reference/security/oidc) (repos created after Jul 2025) |
 
 No long-lived `AWS_ACCESS_KEY_ID` is required — workflows assume roles via OIDC.
 
