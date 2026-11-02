@@ -26,6 +26,8 @@ provider:
     APP_BASE_URL: ${env:APP_BASE_URL, 'https://zoa-theta.vercel.app'}
     SMTP_HOST: ${env:SMTP_HOST, '127.0.0.1'}
     SMTP_PORT: ${env:SMTP_PORT, '1025'}
+    SWAGGER_USER: ${env:SWAGGER_USER, ''}
+    SWAGGER_PASSWORD: ${env:SWAGGER_PASSWORD, ''}
   httpApi:
     cors:
       allowedOrigins:
@@ -99,6 +101,20 @@ custom:
     httpPort: 4000
 
 functions:
+  swaggerUi:
+    handler: src/handlers/docs.swaggerUi
+    events:
+      - httpApi:
+          path: /docs
+          method: GET
+
+  openApiJson:
+    handler: src/handlers/docs.openApiJson
+    events:
+      - httpApi:
+          path: /docs/openapi.json
+          method: GET
+
   health:
     handler: src/handlers/health.handler
     events:

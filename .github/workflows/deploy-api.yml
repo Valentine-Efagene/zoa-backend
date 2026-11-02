@@ -112,4 +112,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy
+        env:
+          SWAGGER_USER: ${{ secrets.SWAGGER_USER }}
+          SWAGGER_PASSWORD: ${{ secrets.SWAGGER_PASSWORD }}
         run: npx serverless deploy --stage "$STAGE" --verbose

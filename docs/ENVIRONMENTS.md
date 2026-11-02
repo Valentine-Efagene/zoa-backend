@@ -19,6 +19,7 @@ In Vercel: set **Production Branch** = `main` on the theta project; create a sec
 |--|--|
 | **Web** | https://zoa-theta.vercel.app |
 | **API** | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com |
+| **API docs (Swagger)** | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com/docs — HTTP Basic Auth (same `SWAGGER_USER` / `SWAGGER_PASSWORD` as qshelter monolith; GitHub repo secrets) |
 | **Cognito pool** | `us-east-1_wOS1H6CvG` |
 | **Cognito client** | `23cb2sc86kg65gpdvekksg91l1` |
 | **Applications table** | `zoa-applications-prod` |
@@ -43,6 +44,7 @@ Redeploy theta after updating env vars.
 |--|--|
 | **Web** | https://zoa-dev.vercel.app (create new Vercel project, same repo, `web/` root) |
 | **API** | https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com |
+| **API docs (Swagger)** | https://jtxjwnw6w3.execute-api.us-east-1.amazonaws.com/docs — same Basic Auth as prod |
 | **Cognito pool** | `us-east-1_SBHMsacSo` |
 | **Cognito client** | `2b2dji6ivplc1q7ea3ke4gcccu` |
 | **Applications table** | `zoa-applications-dev` |
@@ -77,7 +79,9 @@ Use the **same variable names** in each environment; values differ:
 | `CORS_ORIGIN` | `https://zoa-theta.vercel.app` | `https://zoa-dev.vercel.app` |
 | `APP_BASE_URL` | `https://zoa-theta.vercel.app` | `https://zoa-dev.vercel.app` |
 
-Push to `main` deploys **prod** API. Use workflow dispatch to deploy **dev**.
+Push to `main` deploys **prod** API. Push to **`dev`** deploys **dev** API.
+
+**Swagger docs:** set repository secrets `SWAGGER_USER` and `SWAGGER_PASSWORD` (shared with qshelter API docs). Deploy bakes them into Lambda env; `/docs` and `/docs/openapi.json` require Basic Auth. Use **Authorize** in Swagger UI for Cognito Bearer tokens on API calls.
 
 ## SES
 
