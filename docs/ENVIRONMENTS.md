@@ -19,7 +19,7 @@ In Vercel: set **Production Branch** = `main` on the theta project; create a sec
 |--|--|
 | **Web** | https://zoa-theta.vercel.app |
 | **API** | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com |
-| **API docs (Swagger)** | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com/docs — HTTP Basic Auth (same `SWAGGER_USER` / `SWAGGER_PASSWORD` as qshelter monolith; GitHub repo secrets) |
+| **API docs (Swagger)** | https://uhe9k1a6t5.execute-api.us-east-1.amazonaws.com/docs — HTTP Basic Auth (`SWAGGER_USER` / `SWAGGER_PASSWORD` from GitHub repo secrets; username **`zoa`**) |
 | **Cognito pool** | `us-east-1_wOS1H6CvG` |
 | **Cognito client** | `23cb2sc86kg65gpdvekksg91l1` |
 | **Applications table** | `zoa-applications-prod` |
@@ -81,7 +81,7 @@ Use the **same variable names** in each environment; values differ:
 
 Push to `main` deploys **prod** API. Push to **`dev`** deploys **dev** API.
 
-**Swagger docs:** set repository secrets `SWAGGER_USER` and `SWAGGER_PASSWORD` (shared with qshelter API docs). Deploy bakes them into Lambda env; `/docs` and `/docs/openapi.json` require Basic Auth. Use **Authorize** in Swagger UI for Cognito Bearer tokens on API calls.
+**Swagger docs:** set repository secrets `SWAGGER_USER` (`zoa`) and `SWAGGER_PASSWORD`. Deploy bakes them into Lambda env; `/docs` and `/docs/openapi.json` require Basic Auth. Use **Authorize** in Swagger UI for Cognito Bearer tokens on API calls.
 
 ## SES
 

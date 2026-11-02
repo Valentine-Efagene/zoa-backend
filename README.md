@@ -105,7 +105,7 @@ npm run deploy:dev
 
 Copy [`api/.env.example`](api/.env.example) for local env. Live deploys default **`EMAIL_ENABLED=true`** (override with GitHub variable `EMAIL_ENABLED=false` if needed). Until SES leaves sandbox, sends to unverified addresses fail silently (API does not block submissions).
 
-**Interactive API docs:** after deploy, open `{API_URL}/docs` (Basic Auth — same credentials as qshelter Swagger). OpenAPI JSON at `/docs/openapi.json`. Set `SWAGGER_USER` / `SWAGGER_PASSWORD` in GitHub repo secrets for CI deploys and in local `api/.env` for offline.
+**Interactive API docs:** after deploy, open `{API_URL}/docs` (Basic Auth: user **`zoa`**, password from `SWAGGER_PASSWORD` secret). OpenAPI JSON at `/docs/openapi.json`. Set secrets in GitHub for CI deploys and in local `api/.env` for offline.
 
 ## Transactional email (Amazon SES)
 

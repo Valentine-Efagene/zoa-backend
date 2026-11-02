@@ -37,6 +37,11 @@ export const swaggerUi: APIGatewayProxyHandlerV2 = async (event) => {
     return denied;
   }
 
+  const specJson = JSON.stringify(getOpenApiDocument()).replace(
+    /</g,
+    "\\u003c",
+  );
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +57,7 @@ export const swaggerUi: APIGatewayProxyHandlerV2 = async (event) => {
   <script>
     window.onload = function () {
       window.ui = SwaggerUIBundle({
-        url: './openapi.json',
+        spec: ${specJson},
         dom_id: '#swagger-ui',
         deepLinking: true,
         persistAuthorization: true,
