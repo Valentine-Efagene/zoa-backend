@@ -27,7 +27,7 @@ Full IDs, GitHub environment variables, and Vercel env blocks: **[docs/ENVIRONME
 - **Deploy dev:** `cd api && npm run deploy:dev`
 - **CDK:** `npx cdk deploy --all -c stage=prod|dev -c deployEmailStack=false -c createOidcProvider=false` (email DNS is a single shared `ZoaEmail-dev` stack)
 
-Push to `main` deploys the **prod** API via GitHub Actions (`production` environment). Use workflow dispatch to deploy **dev**.
+Push to **`main`** deploys **prod** API; push to **`dev`** deploys **dev** API. See [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) for branch ↔ Vercel ↔ AWS mapping and [`.github/env/`](.github/env/) for CI defaults.
 
 Local development uses localhost; Playwright UAT uses Floci/Mailpit (see below).
 

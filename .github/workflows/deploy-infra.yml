@@ -2,14 +2,15 @@ name: Deploy Infra
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, dev]
     paths:
       - "infra/aws/**"
       - ".github/workflows/deploy-infra.yml"
+      - ".github/env/**"
   workflow_dispatch:
     inputs:
       stage:
-        description: Deployment stage
+        description: Deployment stage (overrides branch default)
         required: true
         default: prod
         type: choice
@@ -22,24 +23,49 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-infra-${{ github.event.inputs.stage || 'prod' }}
+  group: deploy-infra-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy CDK stacks
+    name: Deploy CDK (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage || (github.ref_name == 'dev' && 'dev' || 'prod') }})
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'dev' && 'development' || 'production' }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.stage == 'dev' && 'development' || 'production') || (github.ref_name == 'dev' && 'development' || 'production') }}
     defaults:
       run:
         working-directory: infra/aws
     env:
-      STAGE: ${{ github.event.inputs.stage || 'prod' }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Resolve deployment stage
+        id: stage
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ github.event.inputs.stage }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=prod" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Load stage config
+        run: |
+          set -a
+          # shellcheck disable=SC1091
+          source ".github/env/infra-${{ steps.stage.outputs.value }}.env"
+          set +a
+          echo "STAGE=${{ steps.stage.outputs.value }}" >> "$GITHUB_ENV"
+          echo "AWS_INFRA_ROLE_ARN=${AWS_INFRA_ROLE_ARN}" >> "$GITHUB_ENV"
+
+      - name: Apply GitHub environment overrides
+        run: |
+          if [ -n "${{ vars.AWS_INFRA_ROLE_ARN }}" ]; then
+            echo "AWS_INFRA_ROLE_ARN=${{ vars.AWS_INFRA_ROLE_ARN }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -54,7 +80,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_INFRA_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_INFRA_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: CDK bootstrap (idempotent)

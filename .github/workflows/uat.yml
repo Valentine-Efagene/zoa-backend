@@ -2,17 +2,18 @@ name: UAT (Playwright + Floci)
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, dev]
     paths:
       - "api/**"
-      - "web/zoa/**"
+      - "web/**"
       - "scripts/uat/**"
       - "docker-compose.uat.yml"
       - ".github/workflows/uat.yml"
   pull_request:
+    branches: [main, dev]
     paths:
       - "api/**"
-      - "web/zoa/**"
+      - "web/**"
       - "scripts/uat/**"
       - "docker-compose.uat.yml"
       - ".github/workflows/uat.yml"
@@ -42,27 +43,27 @@ jobs:
           cache: npm
           cache-dependency-path: |
             api/package-lock.json
-            web/zoa/package-lock.json
+            web/package-lock.json
 
       - name: Prepare UAT env files
         run: |
           cp api/.env.uat.example api/.env.uat
-          cp web/zoa/.env.uat.example web/zoa/.env.uat
+          cp web/.env.uat.example web/.env.uat
 
       - name: Install API dependencies
         working-directory: api
         run: npm ci
 
       - name: Install web dependencies
-        working-directory: web/zoa
+        working-directory: web
         run: npm ci
 
       - name: Install Playwright browsers
-        working-directory: web/zoa
+        working-directory: web
         run: npx playwright install --with-deps chromium
 
       - name: Run UAT
-        working-directory: web/zoa
+        working-directory: web
         env:
           CI: "true"
           AWS_ACCOUNT_ID: "000000000000"
@@ -73,5 +74,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: web/zoa/playwright-report/
+          path: web/playwright-report/
           retention-days: 7

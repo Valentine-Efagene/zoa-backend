@@ -1,5 +1,18 @@
 # Environments (prod vs dev)
 
+## Branches (GitHub + Vercel)
+
+| Git branch | AWS stage | Vercel (suggested) | GitHub Actions environment |
+|------------|-----------|--------------------|----------------------------|
+| **`main`** | `prod` | **Production** → `zoa-theta.vercel.app` | `production` |
+| **`dev`** | `dev` | **Preview** → `zoa-dev.vercel.app` | `development` |
+
+- Push to **`main`** runs [Deploy API](.github/workflows/deploy-api.yml) → `zoa-api-prod`.
+- Push to **`dev`** deploys `zoa-api-dev`.
+- Non-secret defaults live in [`.github/env/`](.github/env/) (OIDC role ARNs, table names, CORS). Optional GitHub **environment** variables override those values.
+
+In Vercel: set **Production Branch** = `main` on the theta project; create a second project (or branch-specific env) for **`dev`** → `zoa-dev.vercel.app`.
+
 ## Production (customer-facing)
 
 | | |

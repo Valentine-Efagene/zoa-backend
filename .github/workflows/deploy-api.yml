@@ -2,14 +2,15 @@ name: Deploy API
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, dev]
     paths:
       - "api/**"
       - ".github/workflows/deploy-api.yml"
+      - ".github/env/**"
   workflow_dispatch:
     inputs:
       stage:
-        description: Deployment stage
+        description: Deployment stage (overrides branch default)
         required: true
         default: prod
         type: choice
@@ -22,35 +23,70 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-api-${{ github.event.inputs.stage || 'prod' }}
+  group: deploy-api-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy Serverless API
+    name: Deploy Serverless API (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage || (github.ref_name == 'dev' && 'dev' || 'prod') }})
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.stage == 'dev' && 'development' || 'production' }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.stage == 'dev' && 'development' || 'production') || (github.ref_name == 'dev' && 'development' || 'production') }}
     defaults:
       run:
         working-directory: api
     env:
-      STAGE: ${{ github.event.inputs.stage || 'prod' }}
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-      APPLICATIONS_TABLE: ${{ vars.APPLICATIONS_TABLE }}
-      DOCUMENTS_BUCKET: ${{ vars.DOCUMENTS_BUCKET }}
-      COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
-      COGNITO_CLIENT_ID: ${{ vars.COGNITO_CLIENT_ID }}
-      CORS_ORIGIN: ${{ vars.CORS_ORIGIN || '*' }}
-      EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'true' }}
-      EMAIL_FROM: ${{ vars.EMAIL_FROM }}
-      EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
-      NOTIFY_ADMIN_EMAIL: ${{ vars.NOTIFY_ADMIN_EMAIL }}
-      APP_BASE_URL: ${{ vars.APP_BASE_URL }}
-      EMAIL_TEMPLATES_TABLE: ${{ vars.EMAIL_TEMPLATES_TABLE }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Resolve deployment stage
+        id: stage
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ github.event.inputs.stage }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=prod" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Load stage config
+        run: |
+          set -a
+          # shellcheck disable=SC1091
+          source ".github/env/${{ steps.stage.outputs.value }}.env"
+          set +a
+          echo "STAGE=${{ steps.stage.outputs.value }}" >> "$GITHUB_ENV"
+          echo "AWS_DEPLOY_ROLE_ARN=${AWS_DEPLOY_ROLE_ARN}" >> "$GITHUB_ENV"
+          echo "APPLICATIONS_TABLE=${APPLICATIONS_TABLE}" >> "$GITHUB_ENV"
+          echo "DOCUMENTS_BUCKET=${DOCUMENTS_BUCKET}" >> "$GITHUB_ENV"
+          echo "COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}" >> "$GITHUB_ENV"
+          echo "COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}" >> "$GITHUB_ENV"
+          echo "EMAIL_TEMPLATES_TABLE=${EMAIL_TEMPLATES_TABLE}" >> "$GITHUB_ENV"
+          echo "CORS_ORIGIN=${CORS_ORIGIN}" >> "$GITHUB_ENV"
+          echo "APP_BASE_URL=${APP_BASE_URL}" >> "$GITHUB_ENV"
+          echo "EMAIL_ENABLED=${EMAIL_ENABLED}" >> "$GITHUB_ENV"
+          echo "EMAIL_FROM=${EMAIL_FROM@Q}" >> "$GITHUB_ENV"
+          echo "EMAIL_REPLY_TO=${EMAIL_REPLY_TO}" >> "$GITHUB_ENV"
+          echo "NOTIFY_ADMIN_EMAIL=${NOTIFY_ADMIN_EMAIL}" >> "$GITHUB_ENV"
+
+      - name: Apply GitHub environment overrides
+        run: |
+          apply() { [ -n "${2}" ] && echo "$1=$2" >> "$GITHUB_ENV"; }
+          apply AWS_DEPLOY_ROLE_ARN "${{ vars.AWS_DEPLOY_ROLE_ARN }}"
+          apply APPLICATIONS_TABLE "${{ vars.APPLICATIONS_TABLE }}"
+          apply DOCUMENTS_BUCKET "${{ vars.DOCUMENTS_BUCKET }}"
+          apply COGNITO_USER_POOL_ID "${{ vars.COGNITO_USER_POOL_ID }}"
+          apply COGNITO_CLIENT_ID "${{ vars.COGNITO_CLIENT_ID }}"
+          apply EMAIL_TEMPLATES_TABLE "${{ vars.EMAIL_TEMPLATES_TABLE }}"
+          apply CORS_ORIGIN "${{ vars.CORS_ORIGIN }}"
+          apply APP_BASE_URL "${{ vars.APP_BASE_URL }}"
+          apply EMAIL_ENABLED "${{ vars.EMAIL_ENABLED }}"
+          apply EMAIL_FROM "${{ vars.EMAIL_FROM }}"
+          apply EMAIL_REPLY_TO "${{ vars.EMAIL_REPLY_TO }}"
+          apply NOTIFY_ADMIN_EMAIL "${{ vars.NOTIFY_ADMIN_EMAIL }}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -68,7 +104,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy
