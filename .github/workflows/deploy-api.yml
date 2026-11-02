@@ -74,7 +74,11 @@ jobs:
 
       - name: Apply GitHub environment overrides
         run: |
-          apply() { [ -n "${2}" ] && echo "$1=$2" >> "$GITHUB_ENV"; }
+          apply() {
+            if [ -n "${2:-}" ]; then
+              echo "$1=$2" >> "$GITHUB_ENV"
+            fi
+          }
           apply AWS_DEPLOY_ROLE_ARN "${{ vars.AWS_DEPLOY_ROLE_ARN }}"
           apply APPLICATIONS_TABLE "${{ vars.APPLICATIONS_TABLE }}"
           apply DOCUMENTS_BUCKET "${{ vars.DOCUMENTS_BUCKET }}"
