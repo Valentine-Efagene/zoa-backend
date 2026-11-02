@@ -56,7 +56,7 @@ jobs:
         run: |
           set -a
           # shellcheck disable=SC1091
-          source ".github/env/${{ steps.stage.outputs.value }}.env"
+          source "${{ github.workspace }}/.github/env/${{ steps.stage.outputs.value }}.env"
           set +a
           echo "STAGE=${{ steps.stage.outputs.value }}" >> "$GITHUB_ENV"
           echo "AWS_DEPLOY_ROLE_ARN=${AWS_DEPLOY_ROLE_ARN}" >> "$GITHUB_ENV"
