@@ -68,7 +68,7 @@ jobs:
           echo "CORS_ORIGIN=${CORS_ORIGIN}" >> "$GITHUB_ENV"
           echo "APP_BASE_URL=${APP_BASE_URL}" >> "$GITHUB_ENV"
           echo "EMAIL_ENABLED=${EMAIL_ENABLED}" >> "$GITHUB_ENV"
-          echo "EMAIL_FROM=${EMAIL_FROM@Q}" >> "$GITHUB_ENV"
+          echo "EMAIL_FROM=${EMAIL_FROM}" >> "$GITHUB_ENV"
           echo "EMAIL_REPLY_TO=${EMAIL_REPLY_TO}" >> "$GITHUB_ENV"
           echo "NOTIFY_ADMIN_EMAIL=${NOTIFY_ADMIN_EMAIL}" >> "$GITHUB_ENV"
 
